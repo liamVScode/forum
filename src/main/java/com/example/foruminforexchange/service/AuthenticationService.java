@@ -1,9 +1,6 @@
 package com.example.foruminforexchange.service;
 
-import com.example.foruminforexchange.dto.JwtAuthenticationResponse;
-import com.example.foruminforexchange.dto.RefreshTokenRequest;
-import com.example.foruminforexchange.dto.SigninRequest;
-import com.example.foruminforexchange.dto.SignupRequest;
+import com.example.foruminforexchange.dto.*;
 import com.example.foruminforexchange.model.User;
 
 public interface AuthenticationService {
@@ -11,4 +8,12 @@ public interface AuthenticationService {
 
     JwtAuthenticationResponse signin(SigninRequest signinRequest);
     JwtAuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest);
+
+    JwtAuthenticationResponse facebookSignin(String accessToken);
+
+    JwtAuthenticationResponse googleSignin(String accessToken);
+
+    String requestForgetPassword(ForgetPasswordRequest forgetPasswordRequest);
+
+    String requestResetPassword(ResetPasswordRequest resetPasswordRequest);
 }

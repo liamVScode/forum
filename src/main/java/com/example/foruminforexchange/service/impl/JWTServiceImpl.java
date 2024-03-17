@@ -7,7 +7,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -37,6 +36,17 @@ public class JWTServiceImpl implements JWTService {
                 .compact();
     }
 
+    @Override
+    public String generatePasswordResetToken(String userEmail) {
+        return Jwts.builder()
+                .setSubject(userEmail)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 180 * 1000)) //3 phut
+                .signWith(getSigninKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    //Lay username tu token
     public String extractUsername(String token){
         return extractClaim(token, Claims::getSubject);
     }
@@ -57,6 +67,10 @@ public class JWTServiceImpl implements JWTService {
     public boolean isTokenValid(String token, UserDetails userDetails){
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+
+    public boolean isTokenResetPasswordValid(String token){
+        return (!isTokenExpired(token));
     }
 
     private boolean isTokenExpired(String token){

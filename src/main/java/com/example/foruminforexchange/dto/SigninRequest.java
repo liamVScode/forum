@@ -7,10 +7,10 @@ import lombok.Data;
 
 @Data
 public class SigninRequest {
-    @NotBlank(message = "Email không được để trống")
-    @Email(message = "Email không hợp lệ")
+    @NotBlank(message = "Email cannot be blank")
+    @Email(message = "Email must be a valid email address")
     private String email;
-    @NotBlank(message = "Mật khẩu không được để trống")
-    @Size(min = 6, max = 40, message = "Mật khẩu phải từ 6 đến 40 ký tự")
+    @NotBlank(message = "Password cannot be blank")
+    @Size(min = 6, max = 40, message = "Password must be from 4 to 40 character")
     private String password;
 }

@@ -1,6 +1,8 @@
 package com.example.foruminforexchange.model;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "Posts")
@@ -16,17 +18,26 @@ public class Post {
     @Column(name = "create_at", nullable = false)
     private LocalDateTime createAt = LocalDateTime.now();
 
-    @Column(name = "view_count", nullable = false)
+    @Column(name = "update_at", nullable = false)
+    private LocalDateTime updateAt = LocalDateTime.now();
+
+    @Column(name = "view_count")
     private Long viewCount;
 
-    @Column(name = "like_count", nullable = false)
+    @Column(name = "like_count")
     private Long likeCount;
 
-    @Column(name = "comment_count", nullable = false)
+    @Column(name = "comment_count")
     private Long commentCount;
 
-    @Column(name = "share_count", nullable = false)
+    @Column(name = "report_count")
+    private Long reportCount;
+
+    @Column(name = "share_count")
     private Long shareCount;
+
+    @Column(name = "isLocked")
+    private Boolean isLocked = false;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -40,16 +51,26 @@ public class Post {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL)
+    private Poll poll;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
+
     // Constructors
     public Post() {
+        this.viewCount = 0L;
+        this.likeCount = 0L;
+        this.shareCount = 0L;
+        this.reportCount = 0L;
     }
 
-    public Post(String title, Long viewCount, Long likeCount, Long commentCount, Long shareCount, User user, Prefix prefix, Category category) {
+    public Post(String title, User user, Prefix prefix, Category category) {
         this.title = title;
-        this.viewCount = viewCount;
-        this.likeCount = likeCount;
-        this.commentCount = commentCount;
-        this.shareCount = shareCount;
+        this.viewCount = 0L;
+        this.likeCount = 0L;
+        this.shareCount = 0L;
+        this.reportCount = 0L;
         this.user = user;
         this.prefix = prefix;
         this.category = category;
@@ -134,5 +155,45 @@ public class Post {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    public LocalDateTime getUpdateAt() {
+        return updateAt;
+    }
+
+    public void setUpdateAt(LocalDateTime updateAt) {
+        this.updateAt = updateAt;
+    }
+
+    public Boolean isLocked() {
+        return isLocked;
+    }
+
+    public void setIsLocked(Boolean locked) {
+        isLocked = locked;
+    }
+
+    public Poll getPoll() {
+        return poll;
+    }
+
+    public void setPoll(Poll poll) {
+        this.poll = poll;
+    }
+
+    public Long getReportCount() {
+        return reportCount;
+    }
+
+    public void setReportCount(Long reportCount) {
+        this.reportCount = reportCount;
+    }
+
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
     }
 }

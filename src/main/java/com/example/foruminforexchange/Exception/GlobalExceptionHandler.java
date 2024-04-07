@@ -26,6 +26,14 @@ public class GlobalExceptionHandler {
                 apiResponse.setCode(errorCode.NOT_FOUND.getCode());
                 apiResponse.setMessage(errorCode.NOT_FOUND.getMessage());
                 break;
+            case USER_NOT_FOUND:
+                apiResponse.setCode(errorCode.USER_NOT_FOUND.getCode());
+                apiResponse.setMessage(errorCode.USER_NOT_FOUND.getMessage());
+                break;
+            case POST_NOT_FOUND:
+                apiResponse.setCode(errorCode.POST_NOT_FOUND.getCode());
+                apiResponse.setMessage(errorCode.POST_NOT_FOUND.getMessage());
+                break;
             default:
                 apiResponse.setCode(1);
                 apiResponse.setMessage("An unknown error has occurred.");

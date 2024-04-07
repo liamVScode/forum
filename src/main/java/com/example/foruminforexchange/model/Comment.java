@@ -1,6 +1,8 @@
 package com.example.foruminforexchange.model;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "Comments")
@@ -29,6 +31,9 @@ public class Comment {
     @ManyToOne
     @JoinColumn(name = "post_id")
     private Post post;
+
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ImageComment> images = new ArrayList<>();
 
     public Comment() {
     }
@@ -98,5 +103,23 @@ public class Comment {
 
     public void setPost(Post post) {
         this.post = post;
+    }
+
+    public void addImage(ImageComment imageComment){
+        images.add(imageComment);
+        imageComment.setComment(this);
+    }
+
+    public void removeImage(ImageComment image) {
+        images.remove(image);
+        image.setComment(null);
+    }
+
+    public List<ImageComment> getImages() {
+        return images;
+    }
+
+    public void setImages(List<ImageComment> images) {
+        this.images = images;
     }
 }

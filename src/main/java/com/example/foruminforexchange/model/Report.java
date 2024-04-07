@@ -21,6 +21,9 @@ public class Report {
     @JoinColumn(name = "post_id")
     private Post post;
 
+    @Column(name = "create_at", nullable = false)
+    private LocalDateTime createAt = LocalDateTime.now();
+
     public Report() {
     }
 
@@ -62,5 +65,13 @@ public class Report {
 
     public void setPost(Post post) {
         this.post = post;
+    }
+
+    public LocalDateTime getCreateAt() {
+        return createAt;
+    }
+
+    public void setCreateAt(LocalDateTime createAt) {
+        this.createAt = createAt;
     }
 }

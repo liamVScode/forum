@@ -1,6 +1,9 @@
 package com.example.foruminforexchange.model;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "Prefixes")
 public class Prefix {
@@ -12,6 +15,8 @@ public class Prefix {
     @Column(name = "prefix_name", nullable = false, length = 255)
     private String prefixName;
 
+    @OneToMany(mappedBy = "prefix")
+    private List<TopicPrefix> topicPrefixes = new ArrayList<>();
     // Constructors
     public Prefix() {
     }
@@ -35,6 +40,14 @@ public class Prefix {
 
     public void setPrefixName(String prefixName) {
         this.prefixName = prefixName;
+    }
+
+    public List<TopicPrefix> getTopicPrefixes() {
+        return topicPrefixes;
+    }
+
+    public void setTopicPrefixes(List<TopicPrefix> topicPrefixes) {
+        this.topicPrefixes = topicPrefixes;
     }
 }
 

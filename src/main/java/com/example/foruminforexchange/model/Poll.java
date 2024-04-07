@@ -20,10 +20,10 @@ public class Poll {
     private Boolean isUnlimited;
 
     @Column(name = "change_vote")
-    private Long changeVote;
+    private Boolean changeVote;
 
     @Column(name = "view_results_no_vote")
-    private Long viewResultsNoVote;
+    private Boolean viewResultsNoVote;
 
     @OneToOne
     @JoinColumn(name = "post_id")
@@ -35,7 +35,7 @@ public class Poll {
     public Poll() {
     }
 
-    public Poll(String question, Long maximumSelectableResponses, Boolean isUnlimited, Long changeVote, Long viewResultsNoVote, Post post) {
+    public Poll(String question, Long maximumSelectableResponses, Boolean isUnlimited, Boolean changeVote, Boolean viewResultsNoVote, Post post) {
         this.question = question;
         this.maximumSelectableResponses = maximumSelectableResponses;
         this.isUnlimited = isUnlimited;
@@ -61,11 +61,11 @@ public class Poll {
         return isUnlimited;
     }
 
-    public Long getChangeVote() {
+    public Boolean getChangeVote() {
         return changeVote;
     }
 
-    public Long getViewResultsNoVote() {
+    public Boolean getViewResultsNoVote() {
         return viewResultsNoVote;
     }
 
@@ -94,11 +94,11 @@ public class Poll {
         this.isUnlimited = isUnlimited;
     }
 
-    public void setChangeVote(Long changeVote) {
+    public void setChangeVote(Boolean changeVote) {
         this.changeVote = changeVote;
     }
 
-    public void setViewResultsNoVote(Long viewResultsNoVote) {
+    public void setViewResultsNoVote(Boolean viewResultsNoVote) {
         this.viewResultsNoVote = viewResultsNoVote;
     }
 

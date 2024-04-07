@@ -1,6 +1,8 @@
 package com.example.foruminforexchange.model;
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "Likes")
 public class Like {
@@ -10,6 +12,8 @@ public class Like {
     @Column(name = "like_id")
     private Long likeId;
 
+    @Column(name = "create_at", nullable = false)
+    private LocalDateTime createAt = LocalDateTime.now();
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -50,5 +54,13 @@ public class Like {
 
     public void setPost(Post post) {
         this.post = post;
+    }
+
+    public LocalDateTime getCreateAt() {
+        return createAt;
+    }
+
+    public void setCreateAt(LocalDateTime createAt) {
+        this.createAt = createAt;
     }
 }

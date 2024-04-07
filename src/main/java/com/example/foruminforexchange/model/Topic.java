@@ -3,6 +3,9 @@ package com.example.foruminforexchange.model;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Entity
 @Table(name = "Topics")
@@ -14,6 +17,9 @@ public class Topic {
 
     @Column(name = "topic_name", nullable = false, length = 255)
     private String topicName;
+
+    @OneToMany(mappedBy = "topic")
+    private List<Category> categories = new ArrayList<>();
 
     // Constructors
     public Topic() {

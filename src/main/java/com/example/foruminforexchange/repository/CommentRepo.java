@@ -3,6 +3,7 @@ package com.example.foruminforexchange.repository;
 import com.example.foruminforexchange.model.Comment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -12,6 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 public interface CommentRepo extends JpaRepository<Comment, Long> {
+
+
+    @Query("SELECT c FROM Comment c LEFT JOIN FETCH c.images WHERE c.commentId = :commentId")
+    Comment findByCommentIdWithImages(@Param("commentId") Long commentId);
+
+
     List<Comment> findAllByPostPostId(Long postId);
 
     Comment findByCommentIdAndPostPostIdAndUserUserId(Long commentId, Long postId, Long userId);

@@ -14,13 +14,12 @@ public class PostMapper {
         commentDto.setPostId(comment.getPost().getPostId());
         commentDto.setCreateAt(comment.getCreateAt());
         commentDto.setContent(comment.getContent());
-        if (comment.getImages() != null) {
+        if (comment.getImages() != null && !comment.getImages().isEmpty()) {
             List<String> imageUrls = comment.getImages().stream()
                     .map(ImageComment::getImageUrl)
                     .collect(Collectors.toList());
             commentDto.setImageUrls(imageUrls);
         }
-
         commentDto.setUpdateAt(comment.getUpdateAt());
         commentDto.setUser(UserMapper.convertToUserDto(comment.getUser()));
 
@@ -31,6 +30,7 @@ public class PostMapper {
         CreatePostResponse createPostResponse = new CreatePostResponse();
         createPostResponse.setPostId(post.getPostId());
         createPostResponse.setTitle(post.getTitle());
+        createPostResponse.setCategoryDto(PostMapper.convertCategoryToDto(post.getCategory()));
         return createPostResponse;
     }
 
@@ -38,6 +38,7 @@ public class PostMapper {
         EditPostResponse editPostResponse = new EditPostResponse();
         editPostResponse.setPostId(post.getPostId());
         editPostResponse.setTitle(post.getTitle());
+        editPostResponse.setCategoryDto(PostMapper.convertCategoryToDto(post.getCategory()));
         return editPostResponse;
     }
 

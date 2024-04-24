@@ -5,6 +5,7 @@ import com.example.foruminforexchange.model.Comment;
 import com.example.foruminforexchange.model.Poll;
 import com.example.foruminforexchange.model.Prefix;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -13,10 +14,7 @@ public class CreatePostRequest {
     String title;
     Long prefixId;
     Long categoryId;
-
     String commentContent;
-    List<String> imageUrls;
-
     String pollQuestion;
     Long maximumSelectableResponses;
     boolean isUnlimited;

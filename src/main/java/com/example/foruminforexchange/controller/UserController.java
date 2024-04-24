@@ -23,7 +23,7 @@ public class UserController {
     @Autowired
     private final UserService userService;
 
-    @GetMapping
+    @GetMapping("")
     public ResponseEntity<String> sayHello(){
         return ResponseEntity.ok("Hi User");
     }

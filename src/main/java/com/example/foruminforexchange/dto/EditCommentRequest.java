@@ -10,5 +10,4 @@ public class EditCommentRequest {
     Long commentId;
     String content;
     Long postId;
-    List<String> imageUrls;
 }

@@ -12,7 +12,6 @@ public class EditPostRequest {
     Long categoryId;
 
     String commentContent;
-    List<String> imageUrls;
 
     String pollQuestion;
     Long maximumSelectableResponses;

@@ -6,4 +6,5 @@ import lombok.Data;
 public class EditPostResponse {
     Long postId;
     String title;
+    CategoryDto categoryDto;
 }

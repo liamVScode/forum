@@ -35,6 +35,8 @@ public class SecurityConfiguration {
                         .permitAll()
                         .requestMatchers("/api/posts/detail-post").permitAll()
                         .requestMatchers("/api/posts/topic-prefix").permitAll()
+                        .requestMatchers("/api/posts/all-post").permitAll()
+                        .requestMatchers("/api/posts/filter-post").permitAll()
                         .requestMatchers("/api/posts/**").authenticated()
                         .requestMatchers("/api/v1/admin").hasAnyAuthority(Role.ADMIN.name())
                         .requestMatchers("/api/v1/user").hasAnyAuthority(Role.USER.name())

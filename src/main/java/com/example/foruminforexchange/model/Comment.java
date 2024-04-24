@@ -32,7 +32,7 @@ public class Comment {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "comment", fetch = FetchType.EAGER ,cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ImageComment> images = new ArrayList<>();
 
     public Comment() {

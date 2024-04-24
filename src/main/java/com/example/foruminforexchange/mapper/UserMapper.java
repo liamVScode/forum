@@ -34,6 +34,7 @@ public class UserMapper {
 
     public static UserDto convertToUserDto(User user){
         UserDto userDto = new UserDto();
+        userDto.setUserId(user.getUserId());
         userDto.setEmail(user.getEmail());
         userDto.setFirstName(user.getFirstName());
         userDto.setLastName(user.getLastName());

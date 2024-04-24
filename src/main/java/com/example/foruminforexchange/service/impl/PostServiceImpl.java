@@ -8,6 +8,7 @@ import com.example.foruminforexchange.mapper.PostMapper;
 import com.example.foruminforexchange.mapper.UserMapper;
 import com.example.foruminforexchange.model.*;
 import com.example.foruminforexchange.repository.*;
+import com.example.foruminforexchange.service.FileStorageService;
 import com.example.foruminforexchange.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
@@ -15,12 +16,19 @@ import org.apache.catalina.mapper.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.yaml.snakeyaml.tokens.CommentToken;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,13 +61,23 @@ public class PostServiceImpl implements PostService {
     private final ActivityRepo activityRepo;
     @Autowired
     private final TopicRepo topicRepo;
+
+    private final FileStorageService fileStorageService;
     @Override
-    public List<Post> getAllPostsByCategory(Long categoryId){
-        List<Post> lstPost = postRepo.findByCategoryCategoryId(categoryId);
+    public Page<PostDto> getAllPostsByCategory(Long categoryId, Pageable pageable){
+        if (pageable == null || pageable.getPageSize() <= 0) {
+            pageable = PageRequest.of(0, 10);
+        }
+
+        Page<Post> lstPost = postRepo.findByCategoryCategoryId(categoryId, pageable);
         if(lstPost == null){
             throw new AppException(ErrorCode.POST_NOT_FOUND);
         }
-        return lstPost;
+        Page<PostDto> lstPostDto = lstPost.map(
+                post -> PostMapper.convertToPostDto(post)
+        );
+
+        return lstPostDto;
     }
 
     @Override
@@ -92,8 +110,9 @@ public class PostServiceImpl implements PostService {
         postRepo.save(post);
         return PostMapper.convertToPostDto(post);
     }
+    @Transactional
     @Override
-    public CreatePostResponse createPost(CreatePostRequest createPostRequest){
+    public CreatePostResponse createPost(CreatePostRequest createPostRequest, List<MultipartFile> imageFiles){
         String currentUserEmail = securityUtil.getCurrentUsername();
         if (currentUserEmail == null || "anonymousUser".equals(currentUserEmail)){
             throw new AppException(ErrorCode.USER_NOT_FOUND);
@@ -109,18 +128,19 @@ public class PostServiceImpl implements PostService {
 
             postRepo.save(post);
 
-            if(createPostRequest.getCommentContent() != null){
-                Comment comment = new Comment();
-                comment.setContent(createPostRequest.getCommentContent());
-                comment.setUser(userRepo.findUserByEmail(securityUtil.getCurrentUsername()));
-                comment.setPost(post);
-                commentRepo.save(comment);
+            Comment comment = new Comment();
+            comment.setContent(createPostRequest.getCommentContent());
+            comment.setUser(userRepo.findUserByEmail(securityUtil.getCurrentUsername()));
+            comment.setPost(post);
+            commentRepo.save(comment);
 
-                if (createPostRequest.getImageUrls() != null && !createPostRequest.getImageUrls().isEmpty()) {
-                    for (String imageUrl : createPostRequest.getImageUrls()) {
-                        ImageComment imageComment = new ImageComment(imageUrl, comment);
-                        imageCommentRepo.save(imageComment);
-                    }
+            if(imageFiles != null && !imageFiles.isEmpty()){
+                List<String> imageUrls = new ArrayList<>();
+                for (MultipartFile file : imageFiles) {
+                    String imageUrl = fileStorageService.storeFile(file);
+                    imageUrls.add(imageUrl);
+                    ImageComment imageComment = new ImageComment(imageUrl, comment);
+                    imageCommentRepo.save(imageComment);
                 }
             }
 
@@ -133,8 +153,9 @@ public class PostServiceImpl implements PostService {
             return PostMapper.convertToCreatePostResponse(post);
         }
     }
+    @Transactional
     @Override
-    public EditPostResponse editPost(EditPostRequest editPostRequest){
+    public EditPostResponse editPost(EditPostRequest editPostRequest, List<MultipartFile> imageFiles){
         String currentUserEmail = securityUtil.getCurrentUsername();
         if (currentUserEmail == null || "anonymousUser".equals(currentUserEmail)){
             throw new AppException(ErrorCode.USER_NOT_FOUND);
@@ -157,22 +178,19 @@ public class PostServiceImpl implements PostService {
             comment.setPost(editPost);
             Comment savedComment = commentRepo.save(comment);
 
-            if (editPostRequest.getImageUrls() != null && !editPostRequest.getImageUrls().isEmpty()) {
-                List<ImageComment> imgOld;
-                imgOld = imageCommentRepo.findAllByCommentCommentId(savedComment.getCommentId());
-                if(imgOld != null){
-                    imageCommentRepo.deleteByCommentId(savedComment.getCommentId());
-                }
+            // Xóa hình ảnh cũ từ cơ sở dữ liệu và lưu trữ vật lý
+            List<ImageComment> existingImages = imageCommentRepo.findAllByCommentCommentId(savedComment.getCommentId());
+            for (ImageComment image : existingImages) {
+                fileStorageService.deleteFile(image.getImageUrl());
+                imageCommentRepo.delete(image);
+            }
 
-                for (String imageUrl : editPostRequest.getImageUrls()) {
-                    ImageComment imageComment = new ImageComment(imageUrl, comment);
-                    imageCommentRepo.save(imageComment);
-                }
-            } else {
-                List<ImageComment> imgOld;
-                imgOld = imageCommentRepo.findAllByCommentCommentId(savedComment.getCommentId());
-                if(imgOld != null){
-                    imageCommentRepo.deleteByCommentId(savedComment.getCommentId());
+            // Lưu hình ảnh mới và cập nhật cơ sở dữ liệu
+            if (imageFiles != null && !imageFiles.isEmpty()) {
+                for (MultipartFile file : imageFiles) {
+                    String imageUrl = fileStorageService.storeFile(file);
+                    ImageComment newImageComment = new ImageComment(imageUrl, savedComment);
+                    imageCommentRepo.save(newImageComment);
                 }
             }
 
@@ -226,32 +244,33 @@ public class PostServiceImpl implements PostService {
             }
         }
     }
+    @Transactional
     @Override
-    public String deletePost(DeletePostRequest deletePostRequest) {
-        if(postRepo.findByPostId(deletePostRequest.getPostId()) == null){
+    public String deletePost(Long postId) {
+        Post post = postRepo.findByPostId(postId);
+        if(post == null){
             throw new AppException(ErrorCode.POST_NOT_FOUND);
         }
 
-
-        List<Comment> lstComment = commentRepo.findAllByPostPostId(deletePostRequest.getPostId());
-        if(lstComment != null){
-            for(Comment cmt : lstComment){
-                imageCommentRepo.deleteByCommentId(cmt.getCommentId());
-            }
-            commentRepo.deleteByPostId(deletePostRequest.getPostId());
+        List<Comment> lstComment = commentRepo.findAllByPostPostId(postId);
+        for(Comment cmt : lstComment){
+            imageCommentRepo.deleteByCommentId(cmt.getCommentId());
+        }
+        if (!lstComment.isEmpty()) {
+            commentRepo.deleteByPostId(postId);
         }
 
-
-        Poll poll = pollRepo.findByPostPostId(deletePostRequest.getPostId());
+        Poll poll = pollRepo.findByPostPostId(postId);
         if(poll != null){
             responseRepo.deleteByPollId(poll.getPollId());
-            pollRepo.deleteByPostId(deletePostRequest.getPostId());
+            pollRepo.deleteByPostId(postId);
         }
 
-        postRepo.delete(postRepo.findByPostId(deletePostRequest.getPostId()));
+        postRepo.delete(post);
 
-        return "Delete Succesfully";
+        return "Delete Successfully";
     }
+
     @Override
     public String lockPost(@RequestBody Long postId){
         Post post = postRepo.findByPostId(postId);
@@ -273,13 +292,15 @@ public class PostServiceImpl implements PostService {
         postRepo.save(post);
         return "Post is unlocked succesfully!";
     }
+
+    @Transactional
     @Override
-    public CommentDto createComment(CreateCommentRequest createCommentRequest){
+    public CommentDto createComment(CreateCommentRequest createCommentRequest, List<MultipartFile> imageFiles){
+        System.out.println(imageFiles);
         String currentUserEmail = securityUtil.getCurrentUsername();
         if (currentUserEmail == null || "anonymousUser".equals(currentUserEmail)){
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         } else {
-
             Post post = postRepo.findByPostId(createCommentRequest.getPostId());
             if (post == null) {
                 throw new AppException(ErrorCode.POST_NOT_FOUND);
@@ -291,14 +312,16 @@ public class PostServiceImpl implements PostService {
             comment.setUser(user);
             comment.setCreateAt(LocalDateTime.now());
             comment.setContent(createCommentRequest.getContent());
+            Comment savedComment = commentRepo.save(comment);
 
-            if (createCommentRequest.getImageUrls() != null && !createCommentRequest.getImageUrls().isEmpty()) {
-                for(String imageUrl : createCommentRequest.getImageUrls()){
-                    ImageComment imageComment = new ImageComment(imageUrl, comment);
-
+            if(imageFiles != null && !imageFiles.isEmpty()){
+                for (MultipartFile file : imageFiles) {
+                    String imageUrl = fileStorageService.storeFile(file);
+                    ImageComment imageComment = new ImageComment(imageUrl, savedComment);
                     imageCommentRepo.save(imageComment);
                 }
             }
+
 
             post.setCommentCount(post.getCommentCount() + 1);
             postRepo.save(post);
@@ -311,21 +334,26 @@ public class PostServiceImpl implements PostService {
             activity.setUser(user);
             activityRepo.save(activity);
 
-            Comment savedComment = commentRepo.save(comment);
-
-            return PostMapper.convertToCommentDto(savedComment);
+            Comment reloadedComment = commentRepo.findByCommentIdWithImages(savedComment.getCommentId());
+            System.out.println("Tôi là:" + reloadedComment.getImages());
+            if (reloadedComment != null) {
+                return PostMapper.convertToCommentDto(reloadedComment);
+            } else {
+                throw new AppException(ErrorCode.COMMENT_NOT_FOUND);
+            }
         }
     }
 
+
+
     @Override
-    public CommentDto editComment(EditCommentRequest editCommentRequest) {
+    public CommentDto editComment(EditCommentRequest editCommentRequest, List<MultipartFile> imageFiles) {
         String currentUserEmail = securityUtil.getCurrentUsername();
         if (currentUserEmail == null || "anonymousUser".equals(currentUserEmail)){
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
 
         User user = userRepo.findUserByEmail(currentUserEmail);
-        Post post = postRepo.findByPostId(editCommentRequest.getPostId());
         Comment comment = commentRepo.findByCommentIdAndPostPostIdAndUserUserId(editCommentRequest.getCommentId(), editCommentRequest.getPostId(), user.getUserId());
         if(comment == null){
             throw new AppException(ErrorCode.COMMENT_NOT_FOUND);
@@ -335,24 +363,21 @@ public class PostServiceImpl implements PostService {
         comment.setUpdateAt(LocalDateTime.now());
 
 
-        if (editCommentRequest.getImageUrls() != null && !editCommentRequest.getImageUrls().isEmpty()) {
-            List<ImageComment> imgOld;
-            imgOld = imageCommentRepo.findAllByCommentCommentId(comment.getCommentId());
-            if(imgOld != null){
-                imageCommentRepo.deleteByCommentId(comment.getCommentId());
-            }
+        List<ImageComment> existingImages = imageCommentRepo.findAllByCommentCommentId(comment.getCommentId());
+        for (ImageComment image : existingImages) {
+            fileStorageService.deleteFile(image.getImageUrl());
+            imageCommentRepo.delete(image);
+        }
 
-            for (String imageUrl : editCommentRequest.getImageUrls()) {
-                ImageComment imageComment = new ImageComment(imageUrl, comment);
-                imageCommentRepo.save(imageComment);
-            }
-        } else {
-            List<ImageComment> imgOld;
-            imgOld = imageCommentRepo.findAllByCommentCommentId(comment.getCommentId());
-            if(imgOld != null){
-                imageCommentRepo.deleteByCommentId(comment.getCommentId());
+        // Lưu hình ảnh mới và cập nhật cơ sở dữ liệu
+        if (imageFiles != null && !imageFiles.isEmpty()) {
+            for (MultipartFile file : imageFiles) {
+                String imageUrl = fileStorageService.storeFile(file);
+                ImageComment newImageComment = new ImageComment(imageUrl, comment);
+                imageCommentRepo.save(newImageComment);
             }
         }
+
         Comment savedComment = commentRepo.save(comment);
         return PostMapper.convertToCommentDto(savedComment);
     }

@@ -8,5 +8,4 @@ import java.util.List;
 public class CreateCommentRequest {
     String content;
     Long postId;
-    private List<String> imageUrls;
 }

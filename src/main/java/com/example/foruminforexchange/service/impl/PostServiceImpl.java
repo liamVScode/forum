@@ -5,6 +5,8 @@ import com.example.foruminforexchange.Exception.ErrorCode;
 import com.example.foruminforexchange.configuration.SecurityUtil;
 import com.example.foruminforexchange.dto.*;
 import com.example.foruminforexchange.mapper.PostMapper;
+import com.example.foruminforexchange.mapper.PrefixMapper;
+import com.example.foruminforexchange.mapper.TopicMapper;
 import com.example.foruminforexchange.mapper.UserMapper;
 import com.example.foruminforexchange.model.*;
 import com.example.foruminforexchange.repository.*;
@@ -17,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -59,14 +62,51 @@ public class PostServiceImpl implements PostService {
     private final ReportRepo reportRepo;
     @Autowired
     private final ActivityRepo activityRepo;
-    @Autowired
-    private final TopicRepo topicRepo;
 
     private final FileStorageService fileStorageService;
+
+
+
+
+    @Override
+    public Page<PostDto> getAllPost(Pageable pageable) {
+        if (pageable == null || pageable.getPageSize() <= 0) {
+            pageable = PageRequest.of(0, 10, Sort.by("createAt").descending());
+        } else {
+            pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort().and(Sort.by("createAt").descending()));
+        }
+
+        Page<Post> lstPost = postRepo.findAll(pageable);
+        Page<PostDto> lstPostDto = lstPost.map(
+                post -> PostMapper.convertToPostDto(post)
+        );
+
+        return lstPostDto;
+    }
+
+    @Override
+    public Page<PostDto> getPostByReport(Pageable pageable) {
+        if (pageable == null || pageable.getPageSize() <= 0) {
+            pageable = PageRequest.of(0, 10, Sort.by("createAt").descending());
+        } else {
+            pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort().and(Sort.by("createAt").descending()));
+        }
+        Page<Post> lstPostRp = postRepo.findByReportCountGreaterThan(0L, pageable);
+        if(lstPostRp == null){
+            throw new AppException(ErrorCode.POST_NOT_FOUND);
+        }
+        Page<PostDto> lstPostDto = lstPostRp.map(
+                post -> PostMapper.convertToPostDto(post)
+        );
+        return lstPostDto;
+    }
+
     @Override
     public Page<PostDto> getAllPostsByCategory(Long categoryId, Pageable pageable){
         if (pageable == null || pageable.getPageSize() <= 0) {
-            pageable = PageRequest.of(0, 10);
+            pageable = PageRequest.of(0, 10, Sort.by("createAt").descending());
+        } else {
+            pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort().and(Sort.by("createAt").descending()));
         }
 
         Page<Post> lstPost = postRepo.findByCategoryCategoryId(categoryId, pageable);
@@ -89,9 +129,9 @@ public class PostServiceImpl implements PostService {
                 List<Prefix> lstPrefix = prefixRepo.findPrefixesByTopicId(topic.getTopicId());
                 System.out.println(lstPrefix);
                 TopicPrefixResponse topicPrefixResponse = new TopicPrefixResponse();
-                topicPrefixResponse.setTopic(PostMapper.convertToTopicDto(topic));
+                topicPrefixResponse.setTopic(TopicMapper.convertToTopicDto(topic));
                 List<PrefixDto> lstPrefixDto = lstPrefix.stream()
-                        .map(PostMapper::convertPrefixToDto)
+                        .map(PrefixMapper::convertToPrefixDto)
                         .collect(Collectors.toList());
                 topicPrefixResponse.setPrefix(lstPrefixDto);
                 return topicPrefixResponse;
@@ -278,8 +318,15 @@ public class PostServiceImpl implements PostService {
             throw new AppException(ErrorCode.POST_NOT_FOUND);
         }
 
+        String currentUserEmail = securityUtil.getCurrentUsername();
+        if (currentUserEmail == null || "anonymousUser".equals(currentUserEmail)){
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+
         post.setIsLocked(true);
+        post.setLockedBy(currentUserEmail);
         postRepo.save(post);
+
         return "Post is locked succesfully!";
     }
     @Override
@@ -288,8 +335,20 @@ public class PostServiceImpl implements PostService {
         if(post == null){
             throw new AppException(ErrorCode.POST_NOT_FOUND);
         }
-        post.setIsLocked(false);
-        postRepo.save(post);
+
+        String currentUserEmail = securityUtil.getCurrentUsername();
+        if (currentUserEmail == null || "anonymousUser".equals(currentUserEmail)){
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        User user = userRepo.findUserByEmail(currentUserEmail);
+
+        if(currentUserEmail == post.getLockedBy() || user.getRole() == Role.ADMIN){
+            post.setIsLocked(false);
+            post.setLockedBy(null);
+            postRepo.save(post);
+        }
+
         return "Post is unlocked succesfully!";
     }
 

@@ -21,5 +21,6 @@ public class PostDto {
     private CategoryDto category;
     private Boolean locked;
     private PollDto poll;
+    private List<ReportDto> reportDto;
     private List<CommentDto> commentDto;
 }

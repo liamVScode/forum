@@ -43,6 +43,8 @@ public class User implements UserDetails {
     @Column(length = 255)
     private String website;
 
+    private Status status;
+
     @Column(columnDefinition = "NVARCHAR(255)")
     private String about;
 
@@ -222,5 +224,13 @@ public class User implements UserDetails {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 }

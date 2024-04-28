@@ -13,5 +13,6 @@ import java.util.List;
 public interface PostRepo extends JpaRepository<Post, Long>, JpaSpecificationExecutor {
     Post findByPostId(Long postId);
 
+    Page<Post> findByReportCountGreaterThan(Long reportCount, Pageable pageable);
     Page<Post> findByCategoryCategoryId(Long categoryId, Pageable pageable);
 }

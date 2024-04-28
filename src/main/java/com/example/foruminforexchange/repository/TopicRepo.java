@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface TopicRepo extends JpaRepository<Topic, Long> {
+
 }

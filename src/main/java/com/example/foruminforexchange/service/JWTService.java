@@ -20,5 +20,9 @@ public interface JWTService {
 
     String generatePasswordResetToken(String userEmail);
 
+//    boolean isTokenBlacklisted(String token);
+//
+//    void blacklistToken(String token);
+
 
 }

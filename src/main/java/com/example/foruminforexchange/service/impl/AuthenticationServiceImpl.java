@@ -2,9 +2,11 @@ package com.example.foruminforexchange.service.impl;
 
 import com.example.foruminforexchange.Exception.AppException;
 import com.example.foruminforexchange.Exception.ErrorCode;
+import com.example.foruminforexchange.configuration.SecurityUtil;
 import com.example.foruminforexchange.dto.*;
 import com.example.foruminforexchange.mapper.UserMapper;
 import com.example.foruminforexchange.model.Role;
+import com.example.foruminforexchange.model.Status;
 import com.example.foruminforexchange.model.User;
 import com.example.foruminforexchange.repository.UserRepo;
 import com.example.foruminforexchange.service.AuthenticationService;
@@ -12,11 +14,13 @@ import com.example.foruminforexchange.service.EmailService;
 import com.example.foruminforexchange.service.JWTService;
 import com.example.foruminforexchange.service.UserService;
 import io.jsonwebtoken.io.Decoders;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -43,10 +47,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final EmailService emailService;
 
     private final UserService userService;
+
+    private final SecurityUtil securityUtil;
     public User signup(SignupRequest signupRequest){
         Optional<User> existingUser = userRepo.findByEmail(signupRequest.getEmail());
 
-        // In log giá trị của existingUser để kiểm tra
         System.out.println("findByEmail returned: " + existingUser);
         if(!existingUser.isEmpty()){
             throw new AppException(ErrorCode.USER_EXISTED);
@@ -70,13 +75,39 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var user = userRepo.findByEmail(signinRequest.getEmail()).orElseThrow(() -> new AppException(ErrorCode.EMAIL_PASSWORD_NOT_TRUE));
         var jwt = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(new HashMap<>(), user);
-
+        user.setStatus(Status.ONLINE);
+        userRepo.save(user);
         JwtAuthenticationResponse jwtAuthenticationResponse = new JwtAuthenticationResponse();
         UserDto userDto = UserMapper.convertToUserDto(user);
 
         jwtAuthenticationResponse.setToken(jwt);
         jwtAuthenticationResponse.setRefreshToken(refreshToken);
         jwtAuthenticationResponse.setUserDto(userDto);
+        return jwtAuthenticationResponse;
+    }
+
+    public JwtAuthenticationResponse signinAdmin(SigninRequest signinRequest) {
+        // Xác thực thông tin đăng nhập
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signinRequest.getEmail(), signinRequest.getPassword()));
+
+        // Tìm người dùng theo email và kiểm tra có phải là admin
+        var user = userRepo.findByEmail(signinRequest.getEmail()).orElseThrow(() -> new AppException(ErrorCode.EMAIL_PASSWORD_NOT_TRUE));
+        if (user.getRole() != Role.ADMIN) {
+            throw new AppException(ErrorCode.NOT_ADMIN);
+        }
+
+        // Sinh JWT và Refresh Token
+        var jwt = jwtService.generateToken(user);
+        var refreshToken = jwtService.generateRefreshToken(new HashMap<>(), user);
+        user.setStatus(Status.ONLINE);
+        userRepo.save(user);
+        // Chuẩn bị phản hồi
+        JwtAuthenticationResponse jwtAuthenticationResponse = new JwtAuthenticationResponse();
+        UserDto userDto = UserMapper.convertToUserDto(user);
+        jwtAuthenticationResponse.setToken(jwt);
+        jwtAuthenticationResponse.setRefreshToken(refreshToken);
+        jwtAuthenticationResponse.setUserDto(userDto);
+
         return jwtAuthenticationResponse;
     }
 
@@ -207,9 +238,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String urlRs = "http://localhost:4200/reset-password?token=" + token;
 
         //gui toi mail
-        emailService.sendEmail(forgetPasswordRequest.getEmail(), "RESET PASSWORD", "CLICK TO CONTINUE: " + urlRs);
-        System.out.println(urlRs);
-        return "Đã gửi yêu cầu";
+        emailService.sendEmail(forgetPasswordRequest.getEmail(), "LẤY LẠI MẬT KHẨU", "NHẤN VÀO ĐÂY: " + urlRs);
+        return "Request is sent";
     }
 
     public String requestResetPassword(ResetPasswordRequest resetPasswordRequest){
@@ -224,6 +254,23 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setPassword(passwordEncoder.encode(resetPasswordRequest.getNewPassword()));
         userRepo.save(user);
 
-        return "Đã thay đổi mật khẩu thành công";
+        return "Changed password successfully";
+    }
+
+    public String logout(HttpServletRequest request){
+        String authHeader = request.getHeader("Authorization");
+        String currentUserEmail = securityUtil.getCurrentUsername();
+        if (currentUserEmail == null || "anonymousUser".equals(currentUserEmail)){
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            User user = userRepo.findUserByEmail(currentUserEmail);
+            String token = authHeader.substring(7);
+//            jwtService.blacklistToken(token);
+            SecurityContextHolder.clearContext();
+            user.setStatus(Status.OFFLINE);
+            return "Logout successfully!";
+        }
+        return "Hi";
     }
 }

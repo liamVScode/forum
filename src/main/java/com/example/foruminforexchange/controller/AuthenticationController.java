@@ -3,6 +3,7 @@ package com.example.foruminforexchange.controller;
 import com.example.foruminforexchange.dto.*;
 import com.example.foruminforexchange.model.User;
 import com.example.foruminforexchange.service.AuthenticationService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,13 @@ import org.springframework.web.bind.annotation.*;
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;
+
+    @PostMapping("/signinAdmin")
+    public ApiResponse<JwtAuthenticationResponse> siginAdmin(@RequestBody SigninRequest signinRequest){
+        ApiResponse<JwtAuthenticationResponse> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(authenticationService.signinAdmin(signinRequest));
+        return apiResponse;
+    }
 
     @PostMapping("/signup")
     public ApiResponse<User> signup(@RequestBody SignupRequest signupRequest){
@@ -27,9 +35,7 @@ public class AuthenticationController {
     @PostMapping("/signin")
     public ApiResponse<JwtAuthenticationResponse> signin(@RequestBody SigninRequest signinRequest){
         ApiResponse<JwtAuthenticationResponse> apiResponse = new ApiResponse<>();
-
         apiResponse.setResult(authenticationService.signin(signinRequest));
-
         return apiResponse;
     }
 
@@ -51,18 +57,21 @@ public class AuthenticationController {
     @PostMapping("/forget-password")
     public ApiResponse<?> requestResetPassword(@RequestBody ForgetPasswordRequest forgetPasswordRequest){
         ApiResponse apiResponse = new ApiResponse();
-
         apiResponse.setResult(authenticationService.requestForgetPassword(forgetPasswordRequest));
-
         return apiResponse;
     }
 
     @PostMapping("/reset-password")
     public ApiResponse<?> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest){
         ApiResponse apiResponse = new ApiResponse();
-
         apiResponse.setResult(authenticationService.requestResetPassword(resetPasswordRequest));
+        return apiResponse;
+    }
 
+    @PostMapping("logout")
+    public ApiResponse<String> logout(HttpServletRequest request){
+        ApiResponse<String> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(authenticationService.logout(request));
         return apiResponse;
     }
 

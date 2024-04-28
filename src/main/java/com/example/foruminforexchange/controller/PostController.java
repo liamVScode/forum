@@ -25,9 +25,7 @@ public class PostController {
     @GetMapping("/topic-prefix")
     public ApiResponse<TopicPrefixResponse> getTopicAndPrefix(@RequestParam("categoryId") Long categoryId){
         ApiResponse<TopicPrefixResponse> apiResponse = new ApiResponse<>();
-
         apiResponse.setResult(postService.getPrefixAndTopic(categoryId));
-
         return apiResponse;
     }
 
@@ -92,9 +90,7 @@ public class PostController {
     @PutMapping("/edit-post")
     public ApiResponse<EditPostResponse> editPost(@ModelAttribute EditPostRequest editPostRequest, @RequestParam(value = "imageFiles", required = false) List<MultipartFile> imageFiles){
         ApiResponse<EditPostResponse> apiResponse = new ApiResponse<>();
-
         apiResponse.setResult(postService.editPost(editPostRequest, imageFiles));
-
         return apiResponse;
     }
 
@@ -119,9 +115,7 @@ public class PostController {
     @PostMapping("/unlock-post")
     public ApiResponse<String> unlockPost(@RequestParam("postId") Long postId){
         ApiResponse<String> apiResponse = new ApiResponse<>();
-
         apiResponse.setResult(postService.unlockPost(postId));
-
         return apiResponse;
     }
 

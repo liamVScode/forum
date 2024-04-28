@@ -1,6 +1,8 @@
 package com.example.foruminforexchange.Exception;
 
 import com.example.foruminforexchange.dto.ApiResponse;
+import io.jsonwebtoken.ExpiredJwtException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -34,6 +36,18 @@ public class GlobalExceptionHandler {
                 apiResponse.setCode(errorCode.POST_NOT_FOUND.getCode());
                 apiResponse.setMessage(errorCode.POST_NOT_FOUND.getMessage());
                 break;
+            case NOT_ADMIN:
+                apiResponse.setCode(errorCode.NOT_ADMIN.getCode());
+                apiResponse.setMessage(errorCode.NOT_ADMIN.getMessage());
+                break;
+            case NOT_FOUND_TOPIC:
+                apiResponse.setCode(errorCode.NOT_FOUND_TOPIC.getCode());
+                apiResponse.setMessage(errorCode.NOT_FOUND_TOPIC.getMessage());
+                break;
+            case NOT_BLANK:
+                apiResponse.setCode(errorCode.NOT_BLANK.getCode());
+                apiResponse.setMessage(errorCode.NOT_BLANK.getMessage());
+                break;
             default:
                 apiResponse.setCode(1);
                 apiResponse.setMessage("An unknown error has occurred.");
@@ -41,6 +55,14 @@ public class GlobalExceptionHandler {
         }
 
         return ResponseEntity.badRequest().body(apiResponse);
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ApiResponse> handleExpiredJwtException(ExpiredJwtException exception) {
+        ApiResponse response = new ApiResponse();
+        response.setCode(HttpStatus.UNAUTHORIZED.value());
+        response.setMessage("Phiên làm việc đã kết thúc. Vui lòng đăng nhập lại.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
 }

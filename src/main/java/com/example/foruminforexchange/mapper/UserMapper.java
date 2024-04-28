@@ -39,6 +39,15 @@ public class UserMapper {
         userDto.setFirstName(user.getFirstName());
         userDto.setLastName(user.getLastName());
         userDto.setLocation(user.getLocation());
+        userDto.setAvatar(user.getAvatar());
+        userDto.setDateOfBirth(user.getDateOfBirth());
+        userDto.setAbout(user.getAbout());
+        userDto.setWebsite(user.getWebsite());
+        userDto.setFacebook(user.getFacebook());
+        userDto.setTwitter(user.getTwitter());
+        userDto.setSkype(user.getSkype());
+        userDto.setRole(user.getRole());
+        userDto.setStatus(user.getStatus());
         return userDto;
     }
 }

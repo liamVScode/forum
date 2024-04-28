@@ -36,8 +36,11 @@ public class Post {
     @Column(name = "share_count")
     private Long shareCount;
 
-    @Column(name = "isLocked")
+    @Column(name = "is_locked")
     private Boolean isLocked = false;
+
+    @Column(name = "lock_by")
+    private String lockedBy;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -53,6 +56,9 @@ public class Post {
 
     @OneToOne(mappedBy = "post", cascade = CascadeType.ALL)
     private Poll poll;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    private List<Report> report;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
@@ -195,5 +201,17 @@ public class Post {
 
     public void setComments(List<Comment> comments) {
         this.comments = comments;
+    }
+
+    public List<Report> getReport() {
+        return report;
+    }
+
+    public String getLockedBy() {
+        return lockedBy;
+    }
+
+    public void setLockedBy(String lockedBy) {
+        this.lockedBy = lockedBy;
     }
 }

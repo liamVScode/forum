@@ -56,12 +56,20 @@ public class PostMapper {
         postDto.setLocked(post.isLocked());
         postDto.setUser(UserMapper.convertToUserDto(post.getUser()));
         if(post.getPrefix() != null){
-        postDto.setPrefix(convertPrefixToDto(post.getPrefix()));
+            postDto.setPrefix(PrefixMapper.convertToPrefixDto(post.getPrefix()));
         }
         postDto.setCategory(convertCategoryToDto(post.getCategory()));
         if (post.getPoll() != null) {
             postDto.setPoll(convertToPollDto(post.getPoll()));
         }
+        if(post.getReport() != null){
+            List<ReportDto> reportDtos = post.getReport().stream()
+                    .map(report -> ReportMapper.convertToReportDto(report))
+                    .collect(Collectors.toList());
+            postDto.setReportDto(reportDtos);
+        }else postDto.setReportDto(null);
+
+
         List<CommentDto> commentDtos = post.getComments().stream()
                 .map(comment -> convertToCommentDto(comment))
                 .collect(Collectors.toList());
@@ -70,10 +78,11 @@ public class PostMapper {
     }
 
     public static CategoryDto convertCategoryToDto(Category category) {
-        CategoryDto prefixDto = new CategoryDto();
-        prefixDto.setCategoryId(category.getCategoryId());
-        prefixDto.setCategoryName(category.getCategoryName());
-        return prefixDto;
+        CategoryDto categoryDto = new CategoryDto();
+        categoryDto.setCategoryId(category.getCategoryId());
+        categoryDto.setCategoryName(category.getCategoryName());
+        categoryDto.setTopicId(category.getTopic().getTopicId());
+        return categoryDto;
     }
 
     public static PollDto convertToPollDto(Poll poll) {
@@ -99,17 +108,5 @@ public class PostMapper {
         return responseDto;
     }
 
-    public static PrefixDto convertPrefixToDto(Prefix prefix) {
-        PrefixDto prefixDto = new PrefixDto();
-        prefixDto.setPrefixId(prefix.getPrefixId());
-        prefixDto.setPrefixName(prefix.getPrefixName());
-        return prefixDto;
-    }
 
-    public static TopicDto convertToTopicDto(Topic topic){
-        TopicDto topicDto = new TopicDto();
-        topicDto.setTopicId(topic.getTopicId());
-        topicDto.setTopicName(topic.getTopicName());
-        return topicDto;
-    }
 }

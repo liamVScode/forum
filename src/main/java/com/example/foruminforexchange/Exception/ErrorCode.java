@@ -12,7 +12,15 @@ public enum ErrorCode {
     COMMENT_NOT_FOUND(1004, "Comment not found" ),
 
 
-    REPORT_EXISTED(1005, "Cannot report second time");
+    REPORT_EXISTED(1005, "Cannot report second time"),
+
+    NOT_ADMIN(1006, "You are not admin"),
+    EXPIRED_TOKEN(1007, "EXPIRED TOKEN"),
+    NOT_FOUND_TOPIC(1008, "NOT FOUND TOPIC"),
+    NOT_BLANK(1009, "FIELD MUST'NT BLANK")
+    ;
+
+
 
 
     public int getCode() {

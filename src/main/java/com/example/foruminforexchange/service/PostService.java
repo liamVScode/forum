@@ -5,11 +5,15 @@ import com.example.foruminforexchange.model.Post;
 import com.example.foruminforexchange.model.Prefix;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface PostService {
+    Page<PostDto> getPostByReport(Pageable pageable);
+
+    Page<PostDto> getAllPost(Pageable pageable);
 
     Page<PostDto> getAllPostsByCategory(Long categoryId, Pageable pageable);
 

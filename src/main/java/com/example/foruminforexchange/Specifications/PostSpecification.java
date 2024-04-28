@@ -20,16 +20,16 @@ public class PostSpecification {
 
     public static Specification<Post> hasKeywordInTitleOrFirstComment(String keyword) {
         return (root, query, cb) -> {
-            // Truy vấn tìm comment đầu tiên dựa trên ngày tạo
+            // truy van comment dau tien cua bai viet
             Subquery<Date> dateSubquery = query.subquery(Date.class);
             Root<Comment> subCommentRoot = dateSubquery.from(Comment.class);
             dateSubquery.select(cb.least(subCommentRoot.<Date>get("createAt")));
             dateSubquery.where(cb.equal(subCommentRoot.get("post"), root));
 
-            // Điều kiện tìm kiếm trong tiêu đề hoặc nội dung comment đầu tiên
+            // truy van theo title
             Predicate titlePredicate = cb.like(root.get("title"), "%" + keyword + "%");
 
-            // Điều kiện truy vấn subquery cho comment đầu tiên
+            // truy van con cho comment dau tien
             Subquery<Comment> commentSubquery = query.subquery(Comment.class);
             Root<Comment> commentRoot = commentSubquery.from(Comment.class);
             commentSubquery.select(commentRoot);
@@ -47,17 +47,11 @@ public class PostSpecification {
         };
     }
 
-
-
-
-
-
     public static Specification<Post> updatedWithinDays(Long days) {
         return (root, query, cb) -> {
-            // Tính ngày từ 'days' ngày trước cho đến hiện tại
+            //tu days ngay truoc den hien tai
             LocalDateTime daysAgo = LocalDateTime.now().minusDays(days);
 
-            // Tạo điều kiện cho trường 'updateAt' của Post phải nằm trong khoảng từ 3 ngày trước đến hiện tại
             Predicate updatedWithinRange = cb.greaterThanOrEqualTo(root.get("updateAt"), daysAgo);
 
             return updatedWithinRange;
@@ -74,10 +68,9 @@ public class PostSpecification {
                     hasPoll = true;
                 }
             }
-
-            // Nếu hasPoll là null, trả về một điều kiện trống (tức là không lọc theo trường này)
+            //khong co poll, khong truy van
             if (hasPoll == null) {
-                return criteriaBuilder.conjunction(); // Conjunction tạo ra một điều kiện luôn đúng, nó không ảnh hưởng gì đến kết quả truy vấn
+                return criteriaBuilder.conjunction();
             } else if (hasPoll) {
                 return criteriaBuilder.isNotNull(root.get("poll"));
             } else {

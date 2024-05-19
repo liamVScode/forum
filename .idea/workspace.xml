@@ -4,65 +4,136 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="151f520c-b66f-45ca-b219-5c31616bd4d1" name="Changes" comment="filter, page">
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+    <list default="true" id="151f520c-b66f-45ca-b219-5c31616bd4d1" name="Changes" comment="admin and redis">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/Exception/ErrorCode.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/Exception/ErrorCode.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/Exception/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/Exception/GlobalExceptionHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/Specifications/PostSpecification.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/Specifications/PostSpecification.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/configuration/JwtAuthenticationFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/configuration/JwtAuthenticationFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/configuration/RedisConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/configuration/RedisConfiguration.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/configuration/SecurityConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/configuration/SecurityConfiguration.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/controller/AdminController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/controller/admin/AdminController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/configuration/WebSocketConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/configuration/WebSocketConfiguration.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/controller/AuthenticationController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/controller/AuthenticationController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/controller/PostController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/controller/PostController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/controller/WebSocketController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/controller/WebSocketController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/controller/admin/AdminController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/controller/admin/AdminController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/controller/admin/CategoryAdController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/controller/admin/CategoryAdController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/controller/admin/PostAdController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/controller/admin/PostAdController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/controller/admin/PrefixAdController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/controller/admin/PrefixAdController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/controller/admin/ReportAdController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/controller/admin/ReportAdController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/controller/admin/StatisticsAdController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/controller/admin/StatisticsAdController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/controller/admin/TopicAdController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/controller/admin/TopicAdController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/dto/ActivityDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/dto/ActivityDto.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/dto/CategoryDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/dto/CategoryDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/dto/CommentDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/dto/CommentDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/dto/CreatePrefixRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/dto/CreatePrefixRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/dto/FacebookUser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/dto/FacebookUser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/dto/MessageDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/dto/MessageDto.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/dto/PostDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/dto/PostDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/dto/UserDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/dto/UserDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/dto/ResponseDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/dto/ResponseDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/dto/SigninRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/dto/SigninRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/mapper/ActivityMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/mapper/ActivityMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/mapper/MessageMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/mapper/MessageMapper.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/mapper/PostMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/mapper/PostMapper.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/mapper/UserMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/mapper/UserMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/model/Activity.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/model/Activity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/model/Chat.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/model/Chat.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/model/Comment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/model/Comment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/model/Like.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/model/Like.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/model/Notification.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/model/Notification.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/model/Poll.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/model/Poll.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/model/Post.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/model/Post.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/model/Prefix.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/model/Prefix.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/model/Response.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/model/Response.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/model/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/repository/ActivityRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/repository/ActivityRepo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/repository/CategoryRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/repository/CategoryRepo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/repository/ChatRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/repository/ChatRepo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/repository/CommentRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/repository/CommentRepo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/repository/LikeRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/repository/LikeRepo.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/repository/PostRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/repository/PostRepo.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/repository/ReportRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/repository/ReportRepo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/repository/TopicPrefixRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/repository/TopicPrefixRepo.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/repository/TopicRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/repository/TopicRepo.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/repository/ResponseRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/repository/ResponseRepo.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/repository/UserRepo.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/repository/UserRepo.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/AuthenticationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/AuthenticationService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/ChatService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/ChatService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/JWTService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/JWTService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/MessageService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/MessageService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/PostService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/PostService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/PrefixService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/PrefixService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/SearchService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/SearchService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/StatisticsService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/StatisticsService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/TopicService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/TopicService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/UserService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/impl/AuthenticationServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/impl/AuthenticationServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/impl/CategoryServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/impl/CategoryServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/impl/ChatServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/impl/ChatServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/impl/FileStorageServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/impl/FileStorageServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/impl/JWTServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/impl/JWTServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/impl/MessageServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/impl/MessageServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/impl/PostServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/impl/PostServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/impl/PrefixServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/impl/PrefixServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/impl/SearchServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/impl/SearchServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/impl/StatisticsServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/impl/StatisticsServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/impl/TopicServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/impl/TopicServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/impl/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/foruminforexchange/service/impl/UserServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/application.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/Exception/ErrorCode.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/Exception/ErrorCode.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/Exception/GlobalExceptionHandler$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/Exception/GlobalExceptionHandler$1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/Exception/GlobalExceptionHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/Exception/GlobalExceptionHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/Specifications/PostSpecification.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/Specifications/PostSpecification.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/configuration/JwtAuthenticationFilter.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/configuration/JwtAuthenticationFilter.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/configuration/SecurityConfiguration.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/configuration/SecurityConfiguration.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/controller/AdminController.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/configuration/WebSocketConfiguration.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/configuration/WebSocketConfiguration.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/controller/AuthenticationController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/controller/AuthenticationController.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/controller/PostController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/controller/PostController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/dto/CategoryDto.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/dto/CategoryDto.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/controller/UserController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/controller/UserController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/controller/WebSocketController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/controller/WebSocketController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/dto/ActivityDto.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/dto/ActivityDto.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/dto/CommentDto.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/dto/CommentDto.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/dto/FacebookUser.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/dto/FacebookUser.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/dto/MessageDto.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/dto/MessageDto.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/dto/PostDto.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/dto/PostDto.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/dto/UserDto.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/dto/UserDto.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/dto/ResponseDto.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/dto/ResponseDto.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/mapper/ActivityMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/mapper/ActivityMapper.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/mapper/MessageMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/mapper/MessageMapper.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/mapper/PostMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/mapper/PostMapper.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/mapper/UserMapper.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/mapper/UserMapper.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/model/Activity.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/model/Activity.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/model/Chat.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/model/Chat.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/model/Comment.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/model/Comment.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/model/Like.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/model/Like.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/model/Notification.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/model/Notification.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/model/Poll.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/model/Poll.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/model/Post.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/model/Post.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/model/Response.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/model/Response.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/model/User.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/model/User.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/repository/ActivityRepo.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/repository/ActivityRepo.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/repository/CategoryRepo.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/repository/CategoryRepo.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/repository/ChatRepo.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/repository/ChatRepo.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/repository/CommentRepo.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/repository/CommentRepo.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/repository/LikeRepo.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/repository/LikeRepo.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/repository/PostRepo.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/repository/PostRepo.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/repository/ReportRepo.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/repository/ReportRepo.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/repository/TopicPrefixRepo.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/repository/TopicPrefixRepo.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/repository/ResponseRepo.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/repository/ResponseRepo.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/repository/UserRepo.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/repository/UserRepo.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/AuthenticationService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/AuthenticationService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/ChatService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/ChatService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/JWTService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/JWTService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/MessageService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/MessageService.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/PostService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/PostService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/StatisticsService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/StatisticsService.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/UserService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/UserService.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/impl/AuthenticationServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/impl/AuthenticationServiceImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/impl/ChatServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/impl/ChatServiceImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/impl/FileStorageServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/impl/FileStorageServiceImpl.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/impl/JWTServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/impl/JWTServiceImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/impl/MessageServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/impl/MessageServiceImpl.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/impl/PostServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/impl/PostServiceImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/impl/StatisticsServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/impl/StatisticsServiceImpl.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/impl/UserServiceImpl$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/impl/UserServiceImpl$1.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/impl/UserServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/foruminforexchange/service/impl/UserServiceImpl.class" afterDir="false" />
     </list>
@@ -135,7 +206,7 @@
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;E:/SpringBootPractice/ems-backend&quot;,
+    &quot;last_opened_file_path&quot;: &quot;E:/forum-infor-exchange/src/main/resources&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -152,6 +223,9 @@
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
       <recent name="com.example.foruminforexchange.dto" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="E:\forum-infor-exchange\src\main\resources" />
     </key>
   </component>
   <component name="RunManager">
@@ -208,7 +282,28 @@
       <workItem from="1714093180007" duration="3498000" />
       <workItem from="1714179788971" duration="17120000" />
       <workItem from="1714225378216" duration="3399000" />
-      <workItem from="1714269543562" duration="808000" />
+      <workItem from="1714269543562" duration="1014000" />
+      <workItem from="1714548280058" duration="1597000" />
+      <workItem from="1714700557783" duration="12309000" />
+      <workItem from="1715064876388" duration="24514000" />
+      <workItem from="1715143652226" duration="1981000" />
+      <workItem from="1715219995943" duration="20221000" />
+      <workItem from="1715302246072" duration="27424000" />
+      <workItem from="1715563922973" duration="8429000" />
+      <workItem from="1715648467887" duration="7941000" />
+      <workItem from="1715673535505" duration="687000" />
+      <workItem from="1715740882707" duration="6188000" />
+      <workItem from="1715770831105" duration="3836000" />
+      <workItem from="1715777126835" duration="975000" />
+      <workItem from="1715824527706" duration="18568000" />
+      <workItem from="1715854706825" duration="3124000" />
+      <workItem from="1715858752320" duration="2751000" />
+      <workItem from="1715861710924" duration="885000" />
+      <workItem from="1715865594437" duration="2264000" />
+      <workItem from="1715908986402" duration="8749000" />
+      <workItem from="1715921131849" duration="5637000" />
+      <workItem from="1715996049978" duration="15508000" />
+      <workItem from="1716080264785" duration="24795000" />
     </task>
     <task id="LOCAL-00001" summary="chat">
       <option name="closed" value="true" />
@@ -306,7 +401,15 @@
       <option name="project" value="LOCAL" />
       <updated>1713951433630</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="admin and redis">
+      <option name="closed" value="true" />
+      <created>1714271999076</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1714271999076</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -329,7 +432,8 @@
     <MESSAGE value="update auth" />
     <MESSAGE value="post function" />
     <MESSAGE value="filter, page" />
-    <option name="LAST_COMMIT_MESSAGE" value="filter, page" />
+    <MESSAGE value="admin and redis" />
+    <option name="LAST_COMMIT_MESSAGE" value="admin and redis" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

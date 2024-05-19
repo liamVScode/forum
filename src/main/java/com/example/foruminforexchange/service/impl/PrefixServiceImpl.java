@@ -13,6 +13,7 @@ import com.example.foruminforexchange.model.Topic;
 import com.example.foruminforexchange.model.TopicPrefix;
 import com.example.foruminforexchange.repository.PrefixRepo;
 import com.example.foruminforexchange.repository.TopicPrefixRepo;
+import com.example.foruminforexchange.repository.TopicRepo;
 import com.example.foruminforexchange.service.PrefixService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,12 +22,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class PrefixServiceImpl implements PrefixService {
 
     private final PrefixRepo prefixRepo;
     private final TopicPrefixRepo topicPrefixRepo;
+    private final TopicRepo topicRepo;
     @Override
     public Page<PrefixDto> getAllPrefix(Pageable pageable) {
         if (pageable == null || pageable.getPageSize() <= 0) {
@@ -45,11 +50,21 @@ public class PrefixServiceImpl implements PrefixService {
     }
 
     @Override
+    public List<PrefixDto> getAllListPrefix() {
+        List<Prefix> prefixes = prefixRepo.findAll();
+        List<PrefixDto> prefixDtos = prefixes.stream().map(prefix -> PrefixMapper.convertToPrefixDto(prefix)).collect(Collectors.toList());
+        return prefixDtos;
+    }
+
+    @Override
     public PrefixDto createPrefix(CreatePrefixRequest createPrefixRequest) {
-        if(createPrefixRequest.getPrefixName() == null){
+        if(createPrefixRequest.getPrefixName() == null || createPrefixRequest.getTopicId() == null){
             throw new AppException(ErrorCode.NOT_BLANK);
         }
+        Topic topic = topicRepo.findById(createPrefixRequest.getTopicId()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
         Prefix prefix = new Prefix(createPrefixRequest.getPrefixName());
+        TopicPrefix topicPrefix = new TopicPrefix(topic, prefix);
+        topicPrefixRepo.save(topicPrefix);
         prefixRepo.save(prefix);
         PrefixDto prefixDto = PrefixMapper.convertToPrefixDto(prefix);
         return prefixDto;

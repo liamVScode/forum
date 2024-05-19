@@ -15,12 +15,19 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = {"http://localhost:4200", "https://localhost:4200"})
 public class PostController {
 
     private final PostService postService;
 
     private final SearchService searchService;
+
+    @GetMapping("/get-all")
+    public ApiResponse<Page<PostDto>> getAllPost(Pageable pageable){
+        ApiResponse<Page<PostDto>> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(postService.getAllPost(pageable));
+        return apiResponse;
+    }
 
     @GetMapping("/topic-prefix")
     public ApiResponse<TopicPrefixResponse> getTopicAndPrefix(@RequestParam("categoryId") Long categoryId){
@@ -32,48 +39,14 @@ public class PostController {
     @GetMapping("/all-post")
     public ApiResponse<Page<PostDto>>  getAllPostsByCategory(@RequestParam("categoryId") Long categoryId, Pageable pageable){
         ApiResponse<Page<PostDto>> apiResponse = new ApiResponse<>();
-
         apiResponse.setResult(postService.getAllPostsByCategory(categoryId, pageable));
-
-        return apiResponse;
-    }
-
-    @PostMapping("/create-comment")
-    public ApiResponse<CommentDto> createComment(@ModelAttribute CreateCommentRequest createCommentRequest, @RequestParam(value = "imageFiles", required = false) List<MultipartFile> imageFiles){
-
-        ApiResponse<CommentDto> apiResponse = new ApiResponse<>();
-
-        apiResponse.setResult(postService.createComment(createCommentRequest, imageFiles));
-
-        return apiResponse;
-    }
-
-    @PutMapping("/edit-comment")
-    public ApiResponse<CommentDto> createComment(@ModelAttribute EditCommentRequest editCommentRequest, @RequestParam(value = "imageFiles", required = false) List<MultipartFile> imageFiles){
-
-        ApiResponse<CommentDto> apiResponse = new ApiResponse<>();
-
-        apiResponse.setResult(postService.editComment(editCommentRequest, imageFiles));
-
-        return apiResponse;
-    }
-
-    @PostMapping("/delete-comment")
-    public ApiResponse<String> createComment(@RequestBody DeleteCommentRequest deleteCommentRequest){
-
-        ApiResponse<String> apiResponse = new ApiResponse<>();
-
-        apiResponse.setResult(postService.deleteComment(deleteCommentRequest));
-
         return apiResponse;
     }
 
     @GetMapping("/detail-post")
     public ApiResponse<PostDto> showDetailPost(@RequestParam("postId") Long postId){
         ApiResponse<PostDto> apiResponse = new ApiResponse<>();
-
         apiResponse.setResult(postService.showDetailPost(postId));
-
         return apiResponse;
 
     }
@@ -81,9 +54,7 @@ public class PostController {
     @PostMapping("/create-post")
     public ApiResponse<CreatePostResponse> createPost(@ModelAttribute CreatePostRequest createPostRequest, @RequestParam(value = "imageFiles", required = false) List<MultipartFile> imageFiles){
         ApiResponse<CreatePostResponse> apiResponse = new ApiResponse<>();
-
         apiResponse.setResult(postService.createPost(createPostRequest, imageFiles));
-
         return apiResponse;
     }
 
@@ -94,7 +65,7 @@ public class PostController {
         return apiResponse;
     }
 
-    @DeleteMapping("/delete-post")
+    @PostMapping("/delete-post")
     public ApiResponse<String> deletePost(@RequestParam("postId") Long postId){
         ApiResponse<String> apiResponse = new ApiResponse<>();
 
@@ -119,31 +90,10 @@ public class PostController {
         return apiResponse;
     }
 
-
-    @PostMapping("/like-post")
-    public ApiResponse<String> likePost(@RequestParam("postId") Long postId){
-        ApiResponse<String> apiResponse = new ApiResponse<>();
-
-        apiResponse.setResult(postService.likePost(postId));
-
-        return apiResponse;
-    }
-
-    @PostMapping("/unlike-post")
-    public ApiResponse<String> unlikePost(@RequestParam("postId") Long postId){
-        ApiResponse<String> apiResponse = new ApiResponse<>();
-
-        apiResponse.setResult(postService.unlikePost(postId));
-
-        return apiResponse;
-    }
-
     @PostMapping("report-post")
     public ApiResponse<String> reportPost(@RequestBody ReportPostRequest reportPostRequest){
         ApiResponse<String> apiResponse = new ApiResponse<>();
-
         apiResponse.setResult(postService.reportPost(reportPostRequest));
-
         return apiResponse;
     }
 
@@ -152,7 +102,7 @@ public class PostController {
             @RequestParam(value = "prefixId", required = false) Long prefixId,
             @RequestParam(value = "searchKeyword", required = false) String searchKeyword,
             @RequestParam(value = "updateTime", required = false) Long updateTime,
-            @RequestParam(value = "postType", required = false) String postType,
+            @RequestParam(value = "postType", required = false) Long postType,
             @RequestParam(value = "sortField", required = false) String sortField,
             @RequestParam(value = "sortOrder", required = false) String sortOrder,
             Pageable pageable){

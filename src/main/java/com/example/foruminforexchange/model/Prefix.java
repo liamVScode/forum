@@ -15,8 +15,9 @@ public class Prefix {
     @Column(name = "prefix_name", nullable = false, length = 255)
     private String prefixName;
 
-    @OneToMany(mappedBy = "prefix")
+    @OneToMany(mappedBy = "prefix", cascade = CascadeType.ALL)
     private List<TopicPrefix> topicPrefixes = new ArrayList<>();
+
     // Constructors
     public Prefix() {
     }

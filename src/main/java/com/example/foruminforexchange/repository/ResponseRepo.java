@@ -16,4 +16,9 @@ public interface ResponseRepo extends JpaRepository<Response, Long> {
     @Transactional
     @Query("DELETE FROM Response ic WHERE ic.poll.pollId = :pollId")
     void deleteByPollId(Long pollId);
+
+
+
+    @Query("SELECT SUM(r.voteCount) FROM Response r WHERE r.poll.pollId = ?1")
+    Long getTotalVotesByPollId(Long pollId);
 }

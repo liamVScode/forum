@@ -32,10 +32,17 @@ public class Comment {
     @JoinColumn(name = "post_id")
     private Post post;
 
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Like> likes = new ArrayList<>();
     @OneToMany(mappedBy = "comment", fetch = FetchType.EAGER ,cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ImageComment> images = new ArrayList<>();
 
+    @Column(name = "like_count")
+    private Long likeCount = 0L;
+
+
     public Comment() {
+        this.likeCount = 0L;
     }
 
     public Comment(String content, Long type, User user, Post post) {
@@ -121,5 +128,22 @@ public class Comment {
 
     public void setImages(List<ImageComment> images) {
         this.images = images;
+    }
+
+    public Long getLikeCount() {
+        return this.likeCount != null ? this.likeCount : 0L;
+    }
+
+
+    public void setLikeCount(Long likeCount) {
+        this.likeCount = likeCount;
+    }
+
+    public List<Like> getLikes() {
+        return likes;
+    }
+
+    public void setLikes(List<Like> likes) {
+        this.likes = likes;
     }
 }

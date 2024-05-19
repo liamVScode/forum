@@ -1,5 +1,7 @@
 package com.example.foruminforexchange.model;
 import jakarta.persistence.*;
+
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -29,8 +31,8 @@ public class Poll {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    @OneToMany(mappedBy = "poll")
-    private Set<Response> responses;
+    @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Response> responses;
 
     public Poll() {
     }
@@ -73,7 +75,7 @@ public class Poll {
         return post;
     }
 
-    public Set<Response> getResponses() {
+    public List<Response> getResponses() {
         return responses;
     }
 
@@ -106,7 +108,7 @@ public class Poll {
         this.post = post;
     }
 
-    public void setResponses(Set<Response> responses) {
+    public void setResponses(List<Response> responses) {
         this.responses = responses;
     }
 }

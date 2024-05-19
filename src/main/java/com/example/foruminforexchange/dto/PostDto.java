@@ -1,6 +1,7 @@
 package com.example.foruminforexchange.dto;
 
 import lombok.Data;
+import org.springframework.data.domain.Page;
 
 import java.time.LocalDateTime;
 import java.util.List;

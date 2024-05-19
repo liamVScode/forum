@@ -10,7 +10,7 @@ public interface SearchService{
     Page<PostDto> filterPost(Long prefixId,
                              String searchKeyword,
                              Long updateTime,
-                             String postType,
+                             Long postType,
                              String sortField,
                              String sortOrder,
                              Pageable pageable);

@@ -54,10 +54,10 @@ public class Post {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private Poll poll;
 
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Report> report;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -213,5 +213,17 @@ public class Post {
 
     public void setLockedBy(String lockedBy) {
         this.lockedBy = lockedBy;
+    }
+
+    public Boolean getLocked() {
+        return isLocked;
+    }
+
+    public void setLocked(Boolean locked) {
+        isLocked = locked;
+    }
+
+    public void setReport(List<Report> report) {
+        this.report = report;
     }
 }

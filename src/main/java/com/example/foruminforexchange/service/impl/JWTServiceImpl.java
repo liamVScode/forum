@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -24,11 +25,11 @@ public class JWTServiceImpl implements JWTService {
 
     private static final String JWT_BLACKLIST_PREFIX = "jwt_blacklist:";
 
-//    private final StringRedisTemplate redisTemplate;
-//
-//    public JWTServiceImpl(StringRedisTemplate redisTemplate) {
-//        this.redisTemplate = redisTemplate;
-//    }
+    private final StringRedisTemplate redisTemplate;
+
+    public JWTServiceImpl(StringRedisTemplate redisTemplate) {
+        this.redisTemplate = redisTemplate;
+    }
 
     public String generateToken(UserDetails userDetails){
         return Jwts.builder().setSubject(userDetails.getUsername())
@@ -88,16 +89,16 @@ public class JWTServiceImpl implements JWTService {
         return extractClaim(token, Claims::getExpiration).before(new Date());
     }
 
-//    public void blacklistToken(String token) {
-//        String jti = extractClaim(token, Claims::getId);
-//        long expirationSec = extractClaim(token, Claims::getExpiration).getTime() - System.currentTimeMillis();
-//        redisTemplate.opsForValue().set(JWT_BLACKLIST_PREFIX + jti, "blacklisted", expirationSec, TimeUnit.MILLISECONDS);
-//    }
-//
-//    public boolean isTokenBlacklisted(String token) {
-//        String jti = extractClaim(token, Claims::getId);
-//        return redisTemplate.hasKey(JWT_BLACKLIST_PREFIX + jti);
-//    }
+    public void blacklistToken(String token) {
+        String jti = extractClaim(token, Claims::getId);
+        long expirationSec = extractClaim(token, Claims::getExpiration).getTime() - System.currentTimeMillis();
+        redisTemplate.opsForValue().set(JWT_BLACKLIST_PREFIX + jti, "blacklisted", expirationSec, TimeUnit.MILLISECONDS);
+    }
+
+    public boolean isTokenBlacklisted(String token) {
+        String jti = extractClaim(token, Claims::getId);
+        return redisTemplate.hasKey(JWT_BLACKLIST_PREFIX + jti);
+    }
 
 
 }

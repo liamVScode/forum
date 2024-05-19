@@ -1,12 +1,15 @@
 package com.example.foruminforexchange.model;
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "Responses")
 public class Response {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "response_id")
     private Long responseId;
 
     @Column(nullable = false, length = 255)
@@ -17,6 +20,8 @@ public class Response {
     @ManyToOne
     @JoinColumn(name = "poll_id")
     private Poll poll;
+    @OneToMany(mappedBy = "response", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ResponseUser> responseUsers;
 
     public Response() {
     }
@@ -45,7 +50,7 @@ public class Response {
     }
 
     public Long getVoteCount() {
-        return voteCount;
+        return this.voteCount != null ? this.voteCount : 0L;
     }
 
     public void setVoteCount(Long voteCount) {
@@ -58,5 +63,13 @@ public class Response {
 
     public void setPoll(Poll poll) {
         this.poll = poll;
+    }
+
+    public List<ResponseUser> getResponseUsers() {
+        return responseUsers;
+    }
+
+    public void setResponseUsers(List<ResponseUser> responseUsers) {
+        this.responseUsers = responseUsers;
     }
 }

@@ -28,6 +28,8 @@ public class Activity {
     @Column(name = "activity_time")
     private LocalDateTime createdAt;
 
+    private String link;
+
     public Activity(User user, Post post, String type, String content, LocalDateTime createdAt) {
         this.user = user;
         this.post = post;
@@ -67,14 +69,7 @@ public class Activity {
         return content;
     }
 
-    public void setContent(String type) {
-        if(type.equals("like"))
-            this.content = "Like bài viết";
-        if(type.equals("report"))
-            this.content = "Report bài viết";
-    }
-
-    public void setContentComment(String content){
+    public void setContent(String content) {
         this.content = content;
     }
 
@@ -88,5 +83,14 @@ public class Activity {
 
     public Long getId() {
         return activityId;
+    }
+
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
     }
 }

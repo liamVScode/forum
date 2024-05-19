@@ -1,6 +1,7 @@
 package com.example.foruminforexchange.mapper;
 
 import com.example.foruminforexchange.dto.MessageDto;
+import com.example.foruminforexchange.dto.UserDto;
 import com.example.foruminforexchange.model.Message;
 import com.example.foruminforexchange.repository.ChatRepo;
 
@@ -13,7 +14,7 @@ public class MessageMapper {
         return new MessageDto(
             message.getMessageId(),
             message.getChat() != null ? message.getChat().getChatId() : null,
-            message.getUser() != null ? message.getUser().getUserId() : null,
+            message.getUser() != null ? UserMapper.convertToUserDto(message.getUser()) : null,
             message.getMessageContent(),
             message.getCreateAt()
         );

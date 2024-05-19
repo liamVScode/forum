@@ -48,6 +48,10 @@ public class GlobalExceptionHandler {
                 apiResponse.setCode(errorCode.NOT_BLANK.getCode());
                 apiResponse.setMessage(errorCode.NOT_BLANK.getMessage());
                 break;
+            case PASSWORD_NOT_TRUE:
+                apiResponse.setCode(errorCode.PASSWORD_NOT_TRUE.getCode());
+                apiResponse.setMessage(errorCode.PASSWORD_NOT_TRUE.getMessage());
+                break;
             default:
                 apiResponse.setCode(1);
                 apiResponse.setMessage("An unknown error has occurred.");

@@ -58,26 +58,25 @@ public class PostSpecification {
         };
     }
 
-    public static Specification<Post> hasPoll(String postType) {
+    public static Specification<Post> hasPoll(Long postType) {
         return (root, query, criteriaBuilder) -> {
-            Boolean hasPoll = null;
-            if (postType != null && !postType.isEmpty()) {
-                if ("Discussion".equals(postType)) {
-                    hasPoll = false;
-                } else if ("Poll".equals(postType)) {
-                    hasPoll = true;
-                }
+            Predicate predicate = null;
+
+            if (postType == 0) {
+                // Trả về các bài viết không có poll
+                predicate = criteriaBuilder.isNull(root.get("poll"));
+            } else if (postType == 1) {
+                // Trả về các bài viết có poll
+                predicate = criteriaBuilder.isNotNull(root.get("poll"));
             }
-            //khong co poll, khong truy van
-            if (hasPoll == null) {
-                return criteriaBuilder.conjunction();
-            } else if (hasPoll) {
-                return criteriaBuilder.isNotNull(root.get("poll"));
-            } else {
-                return criteriaBuilder.isNull(root.get("poll"));
-            }
+
+            return predicate != null ? predicate : criteriaBuilder.conjunction();
         };
     }
+
+
+
+
 
 
 

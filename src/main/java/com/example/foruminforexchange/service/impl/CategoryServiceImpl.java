@@ -5,6 +5,7 @@ import com.example.foruminforexchange.Exception.ErrorCode;
 import com.example.foruminforexchange.dto.CategoryDto;
 import com.example.foruminforexchange.dto.CreateCategoryRequest;
 import com.example.foruminforexchange.dto.EditCategoryRequest;
+import com.example.foruminforexchange.mapper.CategoryMapper;
 import com.example.foruminforexchange.mapper.PostMapper;
 import com.example.foruminforexchange.model.Category;
 import com.example.foruminforexchange.model.Topic;
@@ -39,7 +40,7 @@ public class CategoryServiceImpl implements CategoryService {
             throw new AppException(ErrorCode.NOT_FOUND);
         }
 
-        Page<CategoryDto> categoryDtos = categories.map(category -> PostMapper.convertCategoryToDto(category));
+        Page<CategoryDto> categoryDtos = categories.map(category -> CategoryMapper.convertToCategoryDto(category));
         return categoryDtos;
     }
 
@@ -52,7 +53,7 @@ public class CategoryServiceImpl implements CategoryService {
         category.setCategoryName(createCategoryRequest.getCategoryName());
         category.setTopic(topic);
         Category savedCategory = categoryRepo.save(category);
-        CategoryDto categoryDto = PostMapper.convertCategoryToDto(savedCategory);
+        CategoryDto categoryDto = CategoryMapper.convertToCategoryDto(savedCategory);
         return categoryDto;
     }
 
@@ -65,7 +66,7 @@ public class CategoryServiceImpl implements CategoryService {
         category.setCategoryName(editCategoryRequest.getCategoryName());
         category.setTopic(topic);
         Category savedCategory = categoryRepo.save(category);
-        CategoryDto categoryDto = PostMapper.convertCategoryToDto(savedCategory);
+        CategoryDto categoryDto = CategoryMapper.convertToCategoryDto(savedCategory);
         return categoryDto;
     }
 

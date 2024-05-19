@@ -1,13 +1,25 @@
 package com.example.foruminforexchange.service.impl;
 
+import com.example.foruminforexchange.Exception.AppException;
+import com.example.foruminforexchange.Exception.ErrorCode;
+import com.example.foruminforexchange.configuration.SecurityUtil;
+import com.example.foruminforexchange.dto.ChatDto;
+import com.example.foruminforexchange.dto.CreateChatRequest;
 import com.example.foruminforexchange.dto.MessageDto;
+import com.example.foruminforexchange.mapper.ChatMapper;
 import com.example.foruminforexchange.mapper.MessageMapper;
+import com.example.foruminforexchange.mapper.UserMapper;
 import com.example.foruminforexchange.model.Chat;
+import com.example.foruminforexchange.model.ChatType;
 import com.example.foruminforexchange.model.Message;
+import com.example.foruminforexchange.model.User;
 import com.example.foruminforexchange.repository.ChatRepo;
 import com.example.foruminforexchange.repository.MessageRepo;
+import com.example.foruminforexchange.repository.UserRepo;
 import com.example.foruminforexchange.service.ChatService;
+import io.micrometer.common.util.StringUtils;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -23,6 +35,10 @@ import java.util.stream.Collectors;
 public class ChatServiceImpl implements ChatService {
     private ChatRepo chatRepo;
     private MessageRepo messageRepo;
+    private UserRepo userRepo;
+
+    @Autowired
+    private SecurityUtil securityUtil;
 
     @Override
     public List<MessageDto> getMessageByChatId(Long chatId) {
@@ -31,21 +47,57 @@ public class ChatServiceImpl implements ChatService {
             return messages.stream().map((message) -> MessageMapper.mapToMessageDto(message)).collect(Collectors.toList());
         }
         else{
-            return new ArrayList<MessageDto>();
+            return null;
         }
     }
 
+    @Override
+    public ChatDto getPrivateChatWithUser(Long userId){
+        String currentUserEmail = securityUtil.getCurrentUsername();
+        if (currentUserEmail == null || "anonymousUser".equals(currentUserEmail)){
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+        User user = userRepo.findUserByEmail(currentUserEmail);
+        Chat chat = chatRepo.findPrivateChatBetweenTwoUsers(user.getUserId(), userId);
+        if(chat == null){
+            return null;
+        }
+        return ChatMapper.convertToChatDto(chat);
+    }
 
     @Override
-    public Long createAndOrGetChat(Long chatId) {
-        Chat chatFind = chatRepo.findById(chatId).get();
-        if(chatFind != null){
-            return (chatFind.getChatId());
+    public List<ChatDto> getAllChatByCurrentUser() {
+        String currentUserEmail = securityUtil.getCurrentUsername();
+        if (currentUserEmail == null || "anonymousUser".equals(currentUserEmail)){
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
-        else {
-            Chat chat = new Chat();
-            return (chatRepo.save(chat).getChatId());
+        User user = userRepo.findUserByEmail(currentUserEmail);
+        List<Chat> chats = chatRepo.findAllChatsByUserId(user.getUserId());
+        List<ChatDto> chatDtos = chats.stream().map(chat -> ChatMapper.convertToChatDto(chat)).collect(Collectors.toList());
+        return chatDtos;
+    }
+
+    @Override
+    public ChatDto createChat(CreateChatRequest createChatRequest) {
+        System.out.println(createChatRequest.getChatName() + "aaaaaa");
+        List<User> users = new ArrayList<>();
+        User user = userRepo.findById(createChatRequest.getUserId().get(0)).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        for(Long userId : createChatRequest.getUserId()){
+            User user1 = userRepo.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+            users.add(user1);
         }
+        Chat chat = new Chat();
+        chat.setChatName(createChatRequest.getChatName() == null ? user.getFirstName() + user.getLastName() : createChatRequest.getChatName());
+        if(createChatRequest.getChatType() == 0 || createChatRequest.getChatType() == null){
+            chat.setChatType(ChatType.PRIVATE);
+        }else {
+            chat.setChatType(ChatType.GROUP);
+        }
+
+        chat.setMembers(users);
+        chat.setLastMessageTime(LocalDateTime.now());
+        chatRepo.save(chat);
+        return ChatMapper.convertToChatDto(chat);
     }
 
     @Override

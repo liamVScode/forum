@@ -46,11 +46,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try{
             jwt = authHeader.substring(7);
-//            if (jwtService.isTokenBlacklisted(jwt)) {
-//                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-//                response.getWriter().write("Token has been blacklisted");
-//                return;
-//            }
+            if (jwtService.isTokenBlacklisted(jwt)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Token has been blacklisted");
+                return;
+            }
 
             userEmail = jwtService.extractUsername(jwt);
 

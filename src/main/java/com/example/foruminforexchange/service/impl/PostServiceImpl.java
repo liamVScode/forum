@@ -62,17 +62,19 @@ public class PostServiceImpl implements PostService {
     private final ReportRepo reportRepo;
     @Autowired
     private final ActivityRepo activityRepo;
+    @Autowired
+    private final BookmarkRepo bookmarkRepo;
+
 
     private final FileStorageService fileStorageService;
-
-
-
+    private final ResponseUserRepo responseUserRepo;
 
     @Override
     public Page<PostDto> getAllPost(Pageable pageable) {
         if (pageable == null || pageable.getPageSize() <= 0) {
             pageable = PageRequest.of(0, 10, Sort.by("createAt").descending());
         } else {
+            System.out.println("Tôi là page number: " + pageable.getPageNumber() + " và tôi là page size: " + pageable.getPageSize());
             pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort().and(Sort.by("createAt").descending()));
         }
 
@@ -113,6 +115,7 @@ public class PostServiceImpl implements PostService {
         if(lstPost == null){
             throw new AppException(ErrorCode.POST_NOT_FOUND);
         }
+
         Page<PostDto> lstPostDto = lstPost.map(
                 post -> PostMapper.convertToPostDto(post)
         );
@@ -294,25 +297,50 @@ public class PostServiceImpl implements PostService {
 
         List<Comment> lstComment = commentRepo.findAllByPostPostId(postId);
         for(Comment cmt : lstComment){
-            imageCommentRepo.deleteByCommentId(cmt.getCommentId());
+            if(cmt.getImages() != null){
+                imageCommentRepo.deleteByCommentId(cmt.getCommentId());
+            }
+            if(cmt.getLikes() != null){
+                likeRepo.deleteByCommentCommentId(cmt.getCommentId());
+            }
         }
+
         if (!lstComment.isEmpty()) {
             commentRepo.deleteByPostId(postId);
         }
 
         Poll poll = pollRepo.findByPostPostId(postId);
-        if(poll != null){
+        if (poll != null) {
+            List<Response> responses = responseRepo.findAllByPollPollId(poll.getPollId());
+            if(responses != null)
+                for (Response response : responses) {
+                    responseUserRepo.deleteByResponseId(response.getResponseId());
+                }
             responseRepo.deleteByPollId(poll.getPollId());
-            pollRepo.deleteByPostId(postId);
+            pollRepo.delete(poll);
         }
 
+        List<Report> reports = reportRepo.findAllByPostPostId(postId);
+        if(reports != null){
+            reportRepo.deleteAllByPostPostId(postId);
+        }
+
+        List<Activity> activities = activityRepo.findAllByPostPostId(postId);
+        if(activities != null){
+            activityRepo.deleteAllByPostPostId(postId);
+        }
+
+        List<Bookmark> bookmarks = bookmarkRepo.findByPostPostId(post.getPostId());
+        if(bookmarks != null){
+            bookmarkRepo.deleteAllByPostPostId(postId);
+        }
         postRepo.delete(post);
 
         return "Delete Successfully";
     }
 
     @Override
-    public String lockPost(@RequestBody Long postId){
+    public String lockPost(Long postId){
         Post post = postRepo.findByPostId(postId);
         if(post == null){
             throw new AppException(ErrorCode.POST_NOT_FOUND);
@@ -330,7 +358,7 @@ public class PostServiceImpl implements PostService {
         return "Post is locked succesfully!";
     }
     @Override
-    public String unlockPost(@RequestBody Long postId){
+    public String unlockPost(Long postId){
         Post post = postRepo.findByPostId(postId);
         if(post == null){
             throw new AppException(ErrorCode.POST_NOT_FOUND);
@@ -352,163 +380,6 @@ public class PostServiceImpl implements PostService {
         return "Post is unlocked succesfully!";
     }
 
-    @Transactional
-    @Override
-    public CommentDto createComment(CreateCommentRequest createCommentRequest, List<MultipartFile> imageFiles){
-        System.out.println(imageFiles);
-        String currentUserEmail = securityUtil.getCurrentUsername();
-        if (currentUserEmail == null || "anonymousUser".equals(currentUserEmail)){
-            throw new AppException(ErrorCode.USER_NOT_FOUND);
-        } else {
-            Post post = postRepo.findByPostId(createCommentRequest.getPostId());
-            if (post == null) {
-                throw new AppException(ErrorCode.POST_NOT_FOUND);
-            }
-            User user = userRepo.findUserByEmail(currentUserEmail);
-
-            Comment comment = new Comment();
-            comment.setPost(post);
-            comment.setUser(user);
-            comment.setCreateAt(LocalDateTime.now());
-            comment.setContent(createCommentRequest.getContent());
-            Comment savedComment = commentRepo.save(comment);
-
-            if(imageFiles != null && !imageFiles.isEmpty()){
-                for (MultipartFile file : imageFiles) {
-                    String imageUrl = fileStorageService.storeFile(file);
-                    ImageComment imageComment = new ImageComment(imageUrl, savedComment);
-                    imageCommentRepo.save(imageComment);
-                }
-            }
-
-
-            post.setCommentCount(post.getCommentCount() + 1);
-            postRepo.save(post);
-
-            Activity activity = new Activity();
-            activity.setCreatedAt(comment.getCreateAt());
-            activity.setPost(post);
-            activity.setType("comment");
-            activity.setContentComment(comment.getContent());
-            activity.setUser(user);
-            activityRepo.save(activity);
-
-            Comment reloadedComment = commentRepo.findByCommentIdWithImages(savedComment.getCommentId());
-            System.out.println("Tôi là:" + reloadedComment.getImages());
-            if (reloadedComment != null) {
-                return PostMapper.convertToCommentDto(reloadedComment);
-            } else {
-                throw new AppException(ErrorCode.COMMENT_NOT_FOUND);
-            }
-        }
-    }
-
-
-
-    @Override
-    public CommentDto editComment(EditCommentRequest editCommentRequest, List<MultipartFile> imageFiles) {
-        String currentUserEmail = securityUtil.getCurrentUsername();
-        if (currentUserEmail == null || "anonymousUser".equals(currentUserEmail)){
-            throw new AppException(ErrorCode.USER_NOT_FOUND);
-        }
-
-        User user = userRepo.findUserByEmail(currentUserEmail);
-        Comment comment = commentRepo.findByCommentIdAndPostPostIdAndUserUserId(editCommentRequest.getCommentId(), editCommentRequest.getPostId(), user.getUserId());
-        if(comment == null){
-            throw new AppException(ErrorCode.COMMENT_NOT_FOUND);
-        }
-
-        comment.setContent(editCommentRequest.getContent());
-        comment.setUpdateAt(LocalDateTime.now());
-
-
-        List<ImageComment> existingImages = imageCommentRepo.findAllByCommentCommentId(comment.getCommentId());
-        for (ImageComment image : existingImages) {
-            fileStorageService.deleteFile(image.getImageUrl());
-            imageCommentRepo.delete(image);
-        }
-
-        // Lưu hình ảnh mới và cập nhật cơ sở dữ liệu
-        if (imageFiles != null && !imageFiles.isEmpty()) {
-            for (MultipartFile file : imageFiles) {
-                String imageUrl = fileStorageService.storeFile(file);
-                ImageComment newImageComment = new ImageComment(imageUrl, comment);
-                imageCommentRepo.save(newImageComment);
-            }
-        }
-
-        Comment savedComment = commentRepo.save(comment);
-        return PostMapper.convertToCommentDto(savedComment);
-    }
-
-    @Override
-    public String deleteComment(DeleteCommentRequest deleteCommentRequest) {
-        String currentUserEmail = securityUtil.getCurrentUsername();
-        if (currentUserEmail == null || "anonymousUser".equals(currentUserEmail)){
-            throw new AppException(ErrorCode.USER_NOT_FOUND);
-        }
-        User user = userRepo.findUserByEmail(currentUserEmail);
-        Comment comment = commentRepo.findByCommentIdAndPostPostIdAndUserUserId(deleteCommentRequest.getCommentId(), deleteCommentRequest.getPostId(), user.getUserId());
-        if(comment == null){
-            return "Comment not exited";
-        }
-        commentRepo.delete(comment);
-        return "Delete Successfully";
-    }
-
-    @Override
-    public String likePost(Long postId) {
-        String currentUserEmail = securityUtil.getCurrentUsername();
-        if (currentUserEmail == null || "anonymousUser".equals(currentUserEmail)){
-            throw new AppException(ErrorCode.USER_NOT_FOUND);
-        }
-        User user = userRepo.findUserByEmail(currentUserEmail);
-        Post post = postRepo.findByPostId(postId);
-        if(post == null){
-            throw new AppException(ErrorCode.POST_NOT_FOUND);
-        }
-        Like liked = likeRepo.findByUserUserIdAndPostPostId(user.getUserId(), postId);
-        if(liked != null){
-            return "Cannot like second time";
-        }
-        Like like = new Like();
-        like.setCreateAt(LocalDateTime.now());
-        like.setPost(post);
-        like.setUser(user);
-        likeRepo.save(like);
-
-        Activity activity = new Activity();
-        activity.setCreatedAt(like.getCreateAt());
-        activity.setPost(post);
-        activity.setType("like");
-        activity.setContent("like");
-        activity.setUser(user);
-        activityRepo.save(activity);
-        post.setLikeCount(post.getLikeCount() + 1);
-        postRepo.save(post);
-        return "Like succesfully";
-    }
-
-    @Override
-    public String unlikePost(Long postId) {
-        String currentUserEmail = securityUtil.getCurrentUsername();
-        if (currentUserEmail == null || "anonymousUser".equals(currentUserEmail)){
-            throw new AppException(ErrorCode.USER_NOT_FOUND);
-        }
-        User user = userRepo.findUserByEmail(currentUserEmail);
-        Post post = postRepo.findByPostId(postId);
-        if(post == null){
-            throw new AppException(ErrorCode.POST_NOT_FOUND);
-        }
-        Like like = likeRepo.findByUserUserIdAndPostPostId(user.getUserId(), postId);
-        if(like == null){
-            return "You have not liked this post yet";
-        }
-        likeRepo.delete(like);
-        post.setLikeCount(post.getLikeCount() - 1);
-        postRepo.save(post);
-        return "Unlike succesfully";
-    }
 
     @Override
     public String reportPost(ReportPostRequest reportPostRequest){

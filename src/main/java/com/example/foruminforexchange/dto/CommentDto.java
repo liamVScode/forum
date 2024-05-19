@@ -13,5 +13,6 @@ public class CommentDto {
     List<String> imageUrls;
     LocalDateTime createAt;
     LocalDateTime updateAt;
+    List<LikeDto> likeDtos;
     UserDto user;
 }

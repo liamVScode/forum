@@ -2,35 +2,22 @@ package com.example.foruminforexchange.mapper;
 
 import com.example.foruminforexchange.dto.*;
 import com.example.foruminforexchange.model.*;
+import com.example.foruminforexchange.service.ResponseService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 public class PostMapper {
-
-    public static CommentDto convertToCommentDto(Comment comment){
-        CommentDto commentDto = new CommentDto();
-        commentDto.setCommentId(comment.getCommentId());
-        commentDto.setPostId(comment.getPost().getPostId());
-        commentDto.setCreateAt(comment.getCreateAt());
-        commentDto.setContent(comment.getContent());
-        if (comment.getImages() != null && !comment.getImages().isEmpty()) {
-            List<String> imageUrls = comment.getImages().stream()
-                    .map(ImageComment::getImageUrl)
-                    .collect(Collectors.toList());
-            commentDto.setImageUrls(imageUrls);
-        }
-        commentDto.setUpdateAt(comment.getUpdateAt());
-        commentDto.setUser(UserMapper.convertToUserDto(comment.getUser()));
-
-        return commentDto;
-    }
 
     public static CreatePostResponse convertToCreatePostResponse(Post post){
         CreatePostResponse createPostResponse = new CreatePostResponse();
         createPostResponse.setPostId(post.getPostId());
         createPostResponse.setTitle(post.getTitle());
-        createPostResponse.setCategoryDto(PostMapper.convertCategoryToDto(post.getCategory()));
+        createPostResponse.setCategoryDto(CategoryMapper.convertToCategoryDto(post.getCategory()));
         return createPostResponse;
     }
 
@@ -38,7 +25,7 @@ public class PostMapper {
         EditPostResponse editPostResponse = new EditPostResponse();
         editPostResponse.setPostId(post.getPostId());
         editPostResponse.setTitle(post.getTitle());
-        editPostResponse.setCategoryDto(PostMapper.convertCategoryToDto(post.getCategory()));
+        editPostResponse.setCategoryDto(CategoryMapper.convertToCategoryDto(post.getCategory()));
         return editPostResponse;
     }
 
@@ -58,7 +45,7 @@ public class PostMapper {
         if(post.getPrefix() != null){
             postDto.setPrefix(PrefixMapper.convertToPrefixDto(post.getPrefix()));
         }
-        postDto.setCategory(convertCategoryToDto(post.getCategory()));
+        postDto.setCategory(CategoryMapper.convertToCategoryDto(post.getCategory()));
         if (post.getPoll() != null) {
             postDto.setPoll(convertToPollDto(post.getPoll()));
         }
@@ -69,20 +56,11 @@ public class PostMapper {
             postDto.setReportDto(reportDtos);
         }else postDto.setReportDto(null);
 
-
         List<CommentDto> commentDtos = post.getComments().stream()
-                .map(comment -> convertToCommentDto(comment))
+                .map(comment -> CommentMapper.convertToCommentDto(comment))
                 .collect(Collectors.toList());
         postDto.setCommentDto(commentDtos);
         return postDto;
-    }
-
-    public static CategoryDto convertCategoryToDto(Category category) {
-        CategoryDto categoryDto = new CategoryDto();
-        categoryDto.setCategoryId(category.getCategoryId());
-        categoryDto.setCategoryName(category.getCategoryName());
-        categoryDto.setTopicId(category.getTopic().getTopicId());
-        return categoryDto;
     }
 
     public static PollDto convertToPollDto(Poll poll) {
@@ -94,19 +72,20 @@ public class PostMapper {
         pollDto.setChangeVote(poll.getChangeVote());
         pollDto.setViewResultsNoVote(poll.getViewResultsNoVote());
 
+        long totalVotes = poll.getResponses().stream()
+                .mapToLong(Response::getVoteCount)
+                .sum();
+
         List<ResponseDto> responseDtos = poll.getResponses().stream()
-                .map(response -> convertToResponseDto(response))
-                .collect(Collectors.toList());
+                .map(response -> {
+                    double percentage = 0.0;
+                    if (response.getVoteCount() != null && response.getVoteCount() > 0 && totalVotes > 0) {
+                        percentage = (double) response.getVoteCount() * 100 / totalVotes;
+                    }
+                    return ResponseMapper.convertToResponseDto(response, percentage);
+                }).collect(Collectors.toList());
         pollDto.setResponses(responseDtos);
         return pollDto;
     }
-
-    public static ResponseDto convertToResponseDto(Response response) {
-        ResponseDto responseDto = new ResponseDto();
-        responseDto.setResponseContent(response.getResponseContent());
-        responseDto.setVoteCount(response.getVoteCount());
-        return responseDto;
-    }
-
 
 }

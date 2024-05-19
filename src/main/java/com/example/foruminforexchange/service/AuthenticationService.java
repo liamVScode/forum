@@ -9,8 +9,9 @@ public interface AuthenticationService {
     User signup(SignupRequest signupRequest);
     JwtAuthenticationResponse signin(SigninRequest signinRequest);
     JwtAuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest);
-    JwtAuthenticationResponse facebookSignin(String accessToken);
+    JwtAuthenticationResponse facebookSignin(FacebookAccessToken facebookAccessToken);
     JwtAuthenticationResponse googleSignin(String accessToken);
+    String changePassword(ChangePasswordRequest changePasswordRequest);
     String requestForgetPassword(ForgetPasswordRequest forgetPasswordRequest);
     String requestResetPassword(ResetPasswordRequest resetPasswordRequest);
     String logout(HttpServletRequest request);

@@ -96,12 +96,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new AppException(ErrorCode.NOT_ADMIN);
         }
 
-        // Sinh JWT và Refresh Token
+
         var jwt = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(new HashMap<>(), user);
         user.setStatus(Status.ONLINE);
         userRepo.save(user);
-        // Chuẩn bị phản hồi
+
         JwtAuthenticationResponse jwtAuthenticationResponse = new JwtAuthenticationResponse();
         UserDto userDto = UserMapper.convertToUserDto(user);
         jwtAuthenticationResponse.setToken(jwt);
@@ -126,44 +126,56 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return null;
     }
 
-    public JwtAuthenticationResponse facebookSignin(String accessToken) {
-
-        //goi API lay thong tin user
-        FacebookUser facebookUser = fetchFacebookUser(accessToken);
-        if(facebookUser == null || facebookUser.getEmail() == null){
+    public JwtAuthenticationResponse facebookSignin(FacebookAccessToken facebookAccessToken) {
+        System.out.println(facebookAccessToken.getAccessToken());
+        // Gọi API lấy thông tin user từ Facebook
+        FacebookUser facebookUser = fetchFacebookUser(facebookAccessToken.getAccessToken());
+        if (facebookUser == null || facebookUser.getFacebookId() == null) {
             throw new IllegalArgumentException("Invalid Facebook accessToken or cannot fetch Facebook User");
         }
 
-        //check user trong database
-        User user = userRepo.findByEmail(facebookUser.getEmail())
-                .orElseGet(() ->{
-                    User newUser = new User();
-                    newUser.setEmail(facebookUser.getEmail());
-                    newUser.setFirstName(facebookUser.getFirstName());
-                    newUser.setLastName(facebookUser.getLastName());
-                    return userRepo.save(newUser);
+        // check fbId
+        User user = userRepo.findByFacebookId(facebookUser.getFacebookId())
+                .orElseGet(() -> {
+                    // check email
+                    Optional<User> userByEmail = userRepo.findByEmail(facebookUser.getEmail());
+                    if (userByEmail.isPresent()) {
+                        User existingUser = userByEmail.get();
+                        existingUser.setFacebookId(facebookUser.getFacebookId());
+                        existingUser.setStatus(Status.ONLINE);
+                        existingUser.setFacebook("https://www.facebook.com/" + facebookUser.getFacebookId());
+                        return userRepo.save(existingUser);
+                    } else {
+                        User newUser = new User();
+                        newUser.setFacebookId(facebookUser.getFacebookId());
+                        newUser.setEmail(facebookUser.getEmail());
+                        newUser.setFirstName(facebookUser.getFirstName());
+                        newUser.setLastName(facebookUser.getLastName());
+                        newUser.setFacebook("https://www.facebook.com/" + facebookUser.getFacebookId());
+                        newUser.setStatus(Status.ONLINE);
+                        return userRepo.save(newUser);
+                    }
                 });
 
         var jwt = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(new HashMap<>(), user);
 
         JwtAuthenticationResponse jwtAuthenticationResponse = new JwtAuthenticationResponse();
-
         jwtAuthenticationResponse.setToken(jwt);
         jwtAuthenticationResponse.setRefreshToken(refreshToken);
+        jwtAuthenticationResponse.setUserDto(UserMapper.convertToUserDto(user));
         return jwtAuthenticationResponse;
     }
 
-    private FacebookUser fetchFacebookUser(String accessToken){
+    private FacebookUser fetchFacebookUser(String accessToken) {
         HttpClient httpClient = HttpClient.newHttpClient();
-
-        String uri = "https://graph.facebook.com/me?fields=id,name,email,first_name,last_name&access_token=" + accessToken;
+        String uri = "https://graph.facebook.com/v19.0/me?fields=id,name,email,first_name,last_name,birthday,location,hometown,gender&access_token=" + accessToken;
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(URI.create(uri))
                 .GET()
                 .build();
 
-        try{
+        try {
             HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
             String responseBody = response.body();
 
@@ -171,11 +183,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             JSONObject jsonObject = (JSONObject) jsonParser.parse(responseBody);
 
             return UserMapper.convertToFacebookUser(jsonObject);
-        } catch (IOException | InterruptedException | net.minidev.json.parser.ParseException e){
+        } catch (IOException | InterruptedException | net.minidev.json.parser.ParseException e) {
             e.printStackTrace();
             return null;
         }
     }
+
 
     public JwtAuthenticationResponse googleSignin(String accessToken) {
 
@@ -203,6 +216,27 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         jwtAuthenticationResponse.setToken(jwt);
         jwtAuthenticationResponse.setRefreshToken(refreshToken);
         return jwtAuthenticationResponse;
+    }
+
+    @Override
+    public String changePassword(ChangePasswordRequest changePasswordRequest) {
+        String currentUserEmail = securityUtil.getCurrentUsername();
+        if (currentUserEmail == null || "anonymousUser".equals(currentUserEmail)){
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+        User user = userRepo.findUserByEmail(currentUserEmail);
+        if(user == null) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        if(!passwordEncoder.matches(changePasswordRequest.getCurrentPassword(), user.getPassword())){
+            throw new AppException(ErrorCode.PASSWORD_NOT_TRUE);
+        }
+
+        user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
+        userRepo.save(user);
+
+        return "Change password successfully!";
     }
 
     private GoogleUser fetchGoogleUser(String accessToken){
@@ -266,9 +300,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             User user = userRepo.findUserByEmail(currentUserEmail);
             String token = authHeader.substring(7);
-//            jwtService.blacklistToken(token);
+            jwtService.blacklistToken(token);
             SecurityContextHolder.clearContext();
             user.setStatus(Status.OFFLINE);
+            userRepo.save(user);
             return "Logout successfully!";
         }
         return "Hi";

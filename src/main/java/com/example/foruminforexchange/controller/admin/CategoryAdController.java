@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/admin/categoríes")
-@CrossOrigin(origins = "http://localhost:4200")
+@RequestMapping("/api/v1/admin/categories")
+@CrossOrigin(origins = {"http://localhost:4200", "https://localhost:4200"})
 public class CategoryAdController {
 
     private final CategoryService categoryService;
@@ -26,14 +26,14 @@ public class CategoryAdController {
     }
 
     @PostMapping("/create-category")
-    public ApiResponse<CategoryDto> createCategory(CreateCategoryRequest createCategoryRequest){
+    public ApiResponse<CategoryDto> createCategory(@RequestBody CreateCategoryRequest createCategoryRequest){
         ApiResponse<CategoryDto> apiResponse = new ApiResponse<>();
         apiResponse.setResult(categoryService.createCategory(createCategoryRequest));
         return apiResponse;
     }
 
     @PutMapping("/edit-category")
-    public ApiResponse<CategoryDto> editCategory(EditCategoryRequest editCategoryRequest){
+    public ApiResponse<CategoryDto> editCategory(@RequestBody EditCategoryRequest editCategoryRequest){
         ApiResponse<CategoryDto> apiResponse = new ApiResponse<>();
         apiResponse.setResult(categoryService.editCategory(editCategoryRequest));
         return apiResponse;

@@ -28,15 +28,7 @@ public interface PostService {
     String lockPost(Long postId);
 
     String unlockPost(Long postId);
-    CommentDto createComment(CreateCommentRequest createCommentRequest, List<MultipartFile> imageFiles);
-
-    CommentDto editComment(EditCommentRequest editCommentRequest, List<MultipartFile> imageFiles);
-
-    String deleteComment(DeleteCommentRequest deleteCommentRequest);
-
-    String likePost(Long postId);
-
-    String unlikePost(Long postId);
 
     String reportPost(ReportPostRequest reportPostRequest);
+
 }

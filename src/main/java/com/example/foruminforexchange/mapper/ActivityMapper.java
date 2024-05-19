@@ -10,6 +10,8 @@ public class ActivityMapper {
         activityDto.setContent(activity.getContent());
         activityDto.setPostId(activity.getPost().getPostId());
         activityDto.setPostContent(activity.getPost().getTitle());
+        activityDto.setCreatedAt(activity.getCreatedAt());
+        activityDto.setLink(activity.getLink());
         return activityDto;
     }
 }

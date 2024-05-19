@@ -11,10 +11,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin/topics")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = {"http://localhost:4200", "https://localhost:4200"})
 public class TopicAdController {
 
     private final TopicService topicService;
@@ -26,6 +28,12 @@ public class TopicAdController {
         return apiResponse;
     }
 
+    @GetMapping("/list-topic")
+    public ApiResponse<List<TopicDto>> getAllTopic(){
+        ApiResponse<List<TopicDto>> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(topicService.getAllListTopic());
+        return apiResponse;
+    }
     @PostMapping("/create-topic")
     public ApiResponse<TopicDto> createTopic(@RequestBody CreateTopicRequest createTopicRequest){
         ApiResponse<TopicDto> apiResponse = new ApiResponse<>();

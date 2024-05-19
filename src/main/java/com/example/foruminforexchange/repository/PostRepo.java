@@ -15,4 +15,13 @@ public interface PostRepo extends JpaRepository<Post, Long>, JpaSpecificationExe
 
     Page<Post> findByReportCountGreaterThan(Long reportCount, Pageable pageable);
     Page<Post> findByCategoryCategoryId(Long categoryId, Pageable pageable);
+
+    Long countAllByCategoryCategoryId(Long categoryId);
+
+    List<Post> findAllByCategoryCategoryId(Long categoryId);
+
+    @Query("SELECT COUNT(p) FROM Post p")
+    Long countAll();
+
+    Long countAllByUserUserId(Long userId);
 }

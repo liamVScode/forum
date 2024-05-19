@@ -18,8 +18,8 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     private final Path fileStorageLocation;
 
-    public FileStorageServiceImpl(@Value("${file.storage.location}") String fileStorageLocation) {
-        this.fileStorageLocation = Paths.get(fileStorageLocation).toAbsolutePath().normalize();
+    public FileStorageServiceImpl() {
+        this.fileStorageLocation = Paths.get("src/main/resources/static/Image").toAbsolutePath().normalize();
         try {
             Files.createDirectories(this.fileStorageLocation);
             System.out.println(this.fileStorageLocation);
@@ -30,27 +30,28 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     @Override
     public String storeFile(MultipartFile file) {
-        // Kiểm tra đuôi file
+        // .
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
         String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
         if (!fileExtension.matches("jpg|jpeg|png|gif")) {
             throw new RuntimeException("Only image files are allowed!");
         }
 
-        // Kiểm tra kích thước file
+        // size
         long fileSize = file.getSize();
         if (fileSize > 5 * 1024 * 1024) { // 5 MB
             throw new RuntimeException("File size exceeds the allowable limit (5MB)!");
         }
 
-        // Tạo tên file duy nhất
         String uniqueFileName = UUID.randomUUID().toString() + "." + fileExtension;
 
-        // Copy file vào đường dẫn lưu trữ
+        // save
         try {
             Path targetLocation = this.fileStorageLocation.resolve(uniqueFileName);
             file.transferTo(targetLocation);
-            return targetLocation.toString();
+
+            // Trả về URL của tệp vừa lưu
+            return "https://localhost:3000/Image/" + uniqueFileName;
         } catch (IOException ex) {
             throw new RuntimeException("Could not store file " + uniqueFileName + ". Please try again!", ex);
         }

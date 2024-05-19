@@ -18,7 +18,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +43,13 @@ public class TopicServiceImpl implements TopicService {
         }
 
         Page<TopicDto> topicDtos = topics.map(topic -> TopicMapper.convertToTopicDto(topic));
+        return topicDtos;
+    }
+
+    @Override
+    public List<TopicDto> getAllListTopic() {
+        List<Topic> topics = topicRepo.findAll();
+        List<TopicDto> topicDtos = topics.stream().map(topic -> TopicMapper.convertToTopicDto(topic)).collect(Collectors.toList());
         return topicDtos;
     }
 

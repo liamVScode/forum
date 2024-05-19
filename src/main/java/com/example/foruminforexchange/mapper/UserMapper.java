@@ -4,16 +4,26 @@ import com.example.foruminforexchange.dto.FacebookUser;
 import com.example.foruminforexchange.dto.GoogleUser;
 import com.example.foruminforexchange.dto.UserDto;
 import com.example.foruminforexchange.model.User;
+import com.example.foruminforexchange.service.StatisticsService;
 import net.minidev.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class UserMapper {
     private FacebookUser facebookUser;
 
+    private final StatisticsService statisticsService;
+
+    public UserMapper(StatisticsService statisticsService) {
+        this.statisticsService = statisticsService;
+    }
+
     public static FacebookUser convertToFacebookUser(JSONObject jsonObject){
-        String email = (String) jsonObject.get("email");
-        String firstName = (String) jsonObject.get("firstName");
-        String lastName = (String) jsonObject.get("lastName");
-        return new FacebookUser(email, firstName, lastName);
+        FacebookUser facebookUser = new FacebookUser();
+        facebookUser.setFacebookId((String) jsonObject.get("id"));
+        facebookUser.setEmail((String) jsonObject.get("email"));
+        facebookUser.setFirstName((String) jsonObject.get("first_name"));
+        facebookUser.setLastName((String) jsonObject.get("last_name"));
+        return facebookUser;
     }
 
     public static GoogleUser convertToGoogleUser(JSONObject jsonObject){

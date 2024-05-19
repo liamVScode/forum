@@ -27,7 +27,8 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     @Transactional
-    public Page<PostDto> filterPost(Long prefixId, String searchKeyword, Long updateTime, String postType, String sortField, String sortOrder, Pageable pageable) {
+    public Page<PostDto> filterPost(Long prefixId, String searchKeyword, Long updateTime, Long postType, String sortField, String sortOrder, Pageable pageable) {
+        System.out.println(postType + "Nào");
 
         Specification<Post> spec = Specification.where(null);
         if(prefixId != null){

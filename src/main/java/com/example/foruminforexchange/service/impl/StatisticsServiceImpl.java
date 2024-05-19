@@ -7,6 +7,9 @@ import com.example.foruminforexchange.mapper.UserMapper;
 import com.example.foruminforexchange.model.Role;
 import com.example.foruminforexchange.model.Status;
 import com.example.foruminforexchange.model.User;
+import com.example.foruminforexchange.repository.CommentRepo;
+import com.example.foruminforexchange.repository.LikeRepo;
+import com.example.foruminforexchange.repository.PostRepo;
 import com.example.foruminforexchange.repository.UserRepo;
 import com.example.foruminforexchange.service.StatisticsService;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +23,9 @@ import java.util.stream.Collectors;
 public class StatisticsServiceImpl implements StatisticsService {
 
     private final UserRepo userRepo;
-
+    private final CommentRepo commentRepo;
+    private final PostRepo postRepo;
+    private final LikeRepo likeRepo;
     @Override
     public Long getNumberOfOnlineUser() {
         Long numberOfOnlineUser = userRepo.countByStatusAndRole(Status.ONLINE, Role.USER);
@@ -43,5 +48,36 @@ public class StatisticsServiceImpl implements StatisticsService {
     @Override
     public Long getNumberOfPostPerMonth() {
         return null;
+    }
+
+    @Override
+    public Long getNuumberOfPost() {
+        return postRepo.countAll();
+    }
+
+    @Override
+    public Long getNumberOfComment() {
+        return commentRepo.countAll();
+    }
+
+    @Override
+    public Long getNumberOfMember() {
+        Long numberOfMember = userRepo.countAll();
+        return numberOfMember;
+    }
+
+    @Override
+    public Long getNumberOfPostByUser(Long userId) {
+        return postRepo.countAllByUserUserId(userId);
+    }
+
+    @Override
+    public Long getNumberOfCommentByUser(Long userId) {
+        return commentRepo.countAllByUserUserId(userId);
+    }
+
+    @Override
+    public Long getNumberOfLikeByUserId(Long userId) {
+        return likeRepo.countAllByUserUserId(userId);
     }
 }

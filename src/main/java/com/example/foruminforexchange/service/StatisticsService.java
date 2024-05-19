@@ -10,4 +10,16 @@ public interface StatisticsService {
     Long getNumberOfPostPerDay();
     Long getNumberOfPostPerMonth();
 
+    Long getNuumberOfPost();
+
+    Long getNumberOfComment();
+
+    Long getNumberOfMember();
+
+    Long getNumberOfPostByUser(Long userId);
+
+    Long getNumberOfCommentByUser(Long userId);
+
+    Long getNumberOfLikeByUserId(Long userId);
+
 }

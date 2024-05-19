@@ -25,6 +25,8 @@ public class Notification {
     @JoinColumn(name = "user_id")
     private User user;
 
+    private String link;
+
     public Notification() {
     }
 
@@ -82,5 +84,13 @@ public class Notification {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
     }
 }

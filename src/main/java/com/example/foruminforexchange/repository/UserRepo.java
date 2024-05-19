@@ -12,6 +12,7 @@ import java.util.Optional;
 
 public interface UserRepo extends JpaRepository<User, Long> {
 
+    Optional<User> findByFacebookId(String facebookId);
     Optional<User> findByEmail(String email);
 
     User findUserByEmail(String email);
@@ -23,6 +24,7 @@ public interface UserRepo extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u WHERE u.status = :status AND u.role = :role")
     List<User> findAllByRole(@Param("status") Status status, @Param("role") Role role);
-
+    @Query("SELECT COUNT(u) FROM User u")
+    Long countAll();
 
 }

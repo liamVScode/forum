@@ -8,6 +8,7 @@ import com.example.foruminforexchange.model.Report;
 import com.example.foruminforexchange.repository.ReportRepo;
 import com.example.foruminforexchange.service.ReportService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +20,8 @@ import org.springframework.stereotype.Service;
 public class ReportServiceImpl implements ReportService {
 
     private final ReportRepo reportRepo;
+    @Autowired
+    private ReportMapper reportMapper;
     @Override
     public Page<ReportDto> getReportByPost(Long postId, Pageable pageable) {
         if (pageable == null || pageable.getPageSize() <= 0) {
@@ -32,7 +35,7 @@ public class ReportServiceImpl implements ReportService {
             throw new AppException(ErrorCode.NOT_FOUND);
         }
 
-        Page<ReportDto> reportDtos = reports.map(report -> ReportMapper.convertToReportDto(report));
+        Page<ReportDto> reportDtos = reports.map(report -> reportMapper.convertToReportDto(report));
         return reportDtos;
     }
 

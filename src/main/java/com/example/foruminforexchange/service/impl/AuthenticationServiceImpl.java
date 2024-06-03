@@ -31,6 +31,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -49,6 +50,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserService userService;
 
     private final SecurityUtil securityUtil;
+    private final UserMapper userMapper;
     public User signup(SignupRequest signupRequest){
         Optional<User> existingUser = userRepo.findByEmail(signupRequest.getEmail());
 
@@ -63,6 +65,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setFirstName(signupRequest.getFirstName());
         user.setLastName(signupRequest.getLastName());
         user.setLocation(signupRequest.getLocation());
+        user.setAvatar("https://localhost:3000/Image/ecf5d16b-ed81-4ddf-9f8c-346bcbaa65ce.jpg");
         user.setRole(Role.USER);
         user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
 
@@ -73,12 +76,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signinRequest.getEmail(), signinRequest.getPassword()));
 
         var user = userRepo.findByEmail(signinRequest.getEmail()).orElseThrow(() -> new AppException(ErrorCode.EMAIL_PASSWORD_NOT_TRUE));
+        if(user.getLocked() == true){
+            throw new AppException(ErrorCode.LOCKED_USER);
+        }
         var jwt = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(new HashMap<>(), user);
         user.setStatus(Status.ONLINE);
         userRepo.save(user);
         JwtAuthenticationResponse jwtAuthenticationResponse = new JwtAuthenticationResponse();
-        UserDto userDto = UserMapper.convertToUserDto(user);
+        UserDto userDto = userMapper.convertToUserDto(user);
 
         jwtAuthenticationResponse.setToken(jwt);
         jwtAuthenticationResponse.setRefreshToken(refreshToken);
@@ -95,15 +101,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         if (user.getRole() != Role.ADMIN) {
             throw new AppException(ErrorCode.NOT_ADMIN);
         }
-
-
         var jwt = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(new HashMap<>(), user);
         user.setStatus(Status.ONLINE);
         userRepo.save(user);
 
         JwtAuthenticationResponse jwtAuthenticationResponse = new JwtAuthenticationResponse();
-        UserDto userDto = UserMapper.convertToUserDto(user);
+        UserDto userDto = userMapper.convertToUserDto(user);
         jwtAuthenticationResponse.setToken(jwt);
         jwtAuthenticationResponse.setRefreshToken(refreshToken);
         jwtAuthenticationResponse.setUserDto(userDto);
@@ -127,8 +131,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     public JwtAuthenticationResponse facebookSignin(FacebookAccessToken facebookAccessToken) {
-        System.out.println(facebookAccessToken.getAccessToken());
-        // Gọi API lấy thông tin user từ Facebook
         FacebookUser facebookUser = fetchFacebookUser(facebookAccessToken.getAccessToken());
         if (facebookUser == null || facebookUser.getFacebookId() == null) {
             throw new IllegalArgumentException("Invalid Facebook accessToken or cannot fetch Facebook User");
@@ -140,6 +142,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     // check email
                     Optional<User> userByEmail = userRepo.findByEmail(facebookUser.getEmail());
                     if (userByEmail.isPresent()) {
+                        if(userByEmail.get().getLocked() == true){
+                            throw new AppException(ErrorCode.LOCKED_USER);
+                        }
                         User existingUser = userByEmail.get();
                         existingUser.setFacebookId(facebookUser.getFacebookId());
                         existingUser.setStatus(Status.ONLINE);
@@ -149,9 +154,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         User newUser = new User();
                         newUser.setFacebookId(facebookUser.getFacebookId());
                         newUser.setEmail(facebookUser.getEmail());
+                        newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
                         newUser.setFirstName(facebookUser.getFirstName());
                         newUser.setLastName(facebookUser.getLastName());
+                        newUser.setAvatar("https://localhost:3000/Image/ecf5d16b-ed81-4ddf-9f8c-346bcbaa65ce.jpg");
                         newUser.setFacebook("https://www.facebook.com/" + facebookUser.getFacebookId());
+                        newUser.setRole(Role.USER);
                         newUser.setStatus(Status.ONLINE);
                         return userRepo.save(newUser);
                     }
@@ -159,17 +167,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         var jwt = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(new HashMap<>(), user);
-
         JwtAuthenticationResponse jwtAuthenticationResponse = new JwtAuthenticationResponse();
         jwtAuthenticationResponse.setToken(jwt);
         jwtAuthenticationResponse.setRefreshToken(refreshToken);
-        jwtAuthenticationResponse.setUserDto(UserMapper.convertToUserDto(user));
+        jwtAuthenticationResponse.setUserDto(userMapper.convertToUserDto(user));
         return jwtAuthenticationResponse;
     }
 
     private FacebookUser fetchFacebookUser(String accessToken) {
         HttpClient httpClient = HttpClient.newHttpClient();
-        String uri = "https://graph.facebook.com/v19.0/me?fields=id,name,email,first_name,last_name,birthday,location,hometown,gender&access_token=" + accessToken;
+        String uri = "https://graph.facebook.com/v19.0/me?fields=id,name,email,first_name,last_name,birthday,location,hometown,gender,picture&access_token=" + accessToken;
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(URI.create(uri))
                 .GET()
@@ -182,7 +189,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
             JSONObject jsonObject = (JSONObject) jsonParser.parse(responseBody);
 
-            return UserMapper.convertToFacebookUser(jsonObject);
+            return userMapper.convertToFacebookUser(jsonObject);
+
         } catch (IOException | InterruptedException | net.minidev.json.parser.ParseException e) {
             e.printStackTrace();
             return null;
@@ -255,7 +263,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
             JSONObject jsonObject = (JSONObject) jsonParser.parse(responseBody);
 
-            return UserMapper.convertToGoogleUser(jsonObject);
+            return userMapper.convertToGoogleUser(jsonObject);
         } catch (IOException | InterruptedException | net.minidev.json.parser.ParseException e) {
             e.printStackTrace();
             return null;

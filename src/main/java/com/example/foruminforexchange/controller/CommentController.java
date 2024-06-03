@@ -15,7 +15,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/posts/comments/")
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"http://localhost:4200", "https://localhost:4200"})
 public class CommentController {
 
     private final CommentService commentService;
@@ -42,7 +41,7 @@ public class CommentController {
         return apiResponse;
     }
 
-    @PostMapping("/delete-comment")
+    @DeleteMapping("/delete-comment")
     public ApiResponse<String> deleteComment(@RequestParam("postId") Long postId, @RequestParam("commentId") Long commentId) {
         ApiResponse<String> apiResponse = new ApiResponse<>();
         apiResponse.setResult(commentService.deleteComment(postId, commentId));

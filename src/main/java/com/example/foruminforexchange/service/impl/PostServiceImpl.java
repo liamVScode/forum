@@ -4,10 +4,7 @@ import com.example.foruminforexchange.Exception.AppException;
 import com.example.foruminforexchange.Exception.ErrorCode;
 import com.example.foruminforexchange.configuration.SecurityUtil;
 import com.example.foruminforexchange.dto.*;
-import com.example.foruminforexchange.mapper.PostMapper;
-import com.example.foruminforexchange.mapper.PrefixMapper;
-import com.example.foruminforexchange.mapper.TopicMapper;
-import com.example.foruminforexchange.mapper.UserMapper;
+import com.example.foruminforexchange.mapper.*;
 import com.example.foruminforexchange.model.*;
 import com.example.foruminforexchange.repository.*;
 import com.example.foruminforexchange.service.FileStorageService;
@@ -20,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -64,23 +62,31 @@ public class PostServiceImpl implements PostService {
     private final ActivityRepo activityRepo;
     @Autowired
     private final BookmarkRepo bookmarkRepo;
+    @Autowired
+    private final NotificationRepo notificationRepo;
 
-
+    @Autowired
+    private PostMapper postMapper;
+    @Autowired
+    private NotificationMapper notificationMapper;
     private final FileStorageService fileStorageService;
     private final ResponseUserRepo responseUserRepo;
+    @Autowired
+    private final RelationshipRepo relationshipRepo;
+    @Autowired
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
     @Override
     public Page<PostDto> getAllPost(Pageable pageable) {
         if (pageable == null || pageable.getPageSize() <= 0) {
             pageable = PageRequest.of(0, 10, Sort.by("createAt").descending());
         } else {
-            System.out.println("Tôi là page number: " + pageable.getPageNumber() + " và tôi là page size: " + pageable.getPageSize());
             pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), pageable.getSort().and(Sort.by("createAt").descending()));
         }
 
         Page<Post> lstPost = postRepo.findAll(pageable);
         Page<PostDto> lstPostDto = lstPost.map(
-                post -> PostMapper.convertToPostDto(post)
+                post -> postMapper.convertToPostDto(post)
         );
 
         return lstPostDto;
@@ -97,9 +103,11 @@ public class PostServiceImpl implements PostService {
         if(lstPostRp == null){
             throw new AppException(ErrorCode.POST_NOT_FOUND);
         }
+
         Page<PostDto> lstPostDto = lstPostRp.map(
-                post -> PostMapper.convertToPostDto(post)
+                post -> postMapper.convertToPostDto(post)
         );
+
         return lstPostDto;
     }
 
@@ -117,7 +125,7 @@ public class PostServiceImpl implements PostService {
         }
 
         Page<PostDto> lstPostDto = lstPost.map(
-                post -> PostMapper.convertToPostDto(post)
+                post -> postMapper.convertToPostDto(post)
         );
 
         return lstPostDto;
@@ -151,7 +159,7 @@ public class PostServiceImpl implements PostService {
         }
         post.setViewCount(post.getViewCount() + 1);
         postRepo.save(post);
-        return PostMapper.convertToPostDto(post);
+        return postMapper.convertToPostDto(post);
     }
     @Transactional
     @Override
@@ -159,42 +167,61 @@ public class PostServiceImpl implements PostService {
         String currentUserEmail = securityUtil.getCurrentUsername();
         if (currentUserEmail == null || "anonymousUser".equals(currentUserEmail)){
             throw new AppException(ErrorCode.USER_NOT_FOUND);
-        } else {
-            Post post = new Post();
-
-            post.setTitle(createPostRequest.getTitle());
-            post.setCreateAt(LocalDateTime.now());
-            post.setCommentCount(1L);
-            post.setUser(userRepo.findUserByEmail(securityUtil.getCurrentUsername()));
-            post.setPrefix(prefixRepo.findPrefixByPrefixId(createPostRequest.getPrefixId()));
-            post.setCategory(categoryRepo.findByCategoryId(createPostRequest.getCategoryId()));
-
-            postRepo.save(post);
-
-            Comment comment = new Comment();
-            comment.setContent(createPostRequest.getCommentContent());
-            comment.setUser(userRepo.findUserByEmail(securityUtil.getCurrentUsername()));
-            comment.setPost(post);
-            commentRepo.save(comment);
-
-            if(imageFiles != null && !imageFiles.isEmpty()){
-                List<String> imageUrls = new ArrayList<>();
-                for (MultipartFile file : imageFiles) {
-                    String imageUrl = fileStorageService.storeFile(file);
-                    imageUrls.add(imageUrl);
-                    ImageComment imageComment = new ImageComment(imageUrl, comment);
-                    imageCommentRepo.save(imageComment);
-                }
-            }
-
-            if (createPostRequest.getPollQuestion() != null){
-                handlePoll(post, createPostRequest.getPollQuestion(), createPostRequest.isChangeVote(), createPostRequest.isViewResultNoVote(),
-                        createPostRequest.isUnlimited(), createPostRequest.getMaximumSelectableResponses(), createPostRequest.getPollResponses());
-
-            }
-
-            return PostMapper.convertToCreatePostResponse(post);
         }
+
+        User user = userRepo.findUserByEmail(currentUserEmail);
+        if(user == null) throw new AppException(ErrorCode.USER_NOT_FOUND);
+        Post post = new Post();
+
+        post.setTitle(createPostRequest.getTitle());
+        post.setCreateAt(LocalDateTime.now());
+        post.setCommentCount(1L);
+        post.setUser(userRepo.findUserByEmail(securityUtil.getCurrentUsername()));
+        post.setPrefix(prefixRepo.findPrefixByPrefixId(createPostRequest.getPrefixId()));
+        post.setCategory(categoryRepo.findByCategoryId(createPostRequest.getCategoryId()));
+
+        postRepo.save(post);
+
+        Comment comment = new Comment();
+        comment.setContent(createPostRequest.getCommentContent());
+        comment.setUser(userRepo.findUserByEmail(securityUtil.getCurrentUsername()));
+        comment.setPost(post);
+        commentRepo.save(comment);
+
+        if(imageFiles != null && !imageFiles.isEmpty()){
+            List<String> imageUrls = new ArrayList<>();
+            for (MultipartFile file : imageFiles) {
+                String imageUrl = fileStorageService.storeFile(file);
+                imageUrls.add(imageUrl);
+                ImageComment imageComment = new ImageComment(imageUrl, comment);
+                imageCommentRepo.save(imageComment);
+            }
+        }
+
+        if (createPostRequest.getPollQuestion() != null){
+            handlePoll(post, createPostRequest.getPollQuestion(), createPostRequest.isChangeVote(), createPostRequest.isViewResultNoVote(),
+                    createPostRequest.isUnlimited(), createPostRequest.getMaximumSelectableResponses(), createPostRequest.getPollResponses());
+
+        }
+
+        List<Relationship> relationships = relationshipRepo.findAllByTargetUser(user);
+        for(Relationship re: relationships){
+            Notification notification = new Notification();
+            notification.setUser(re.getSourceUser());
+            notification.setCreateAt(LocalDateTime.now());
+            notification.setStatus(0L);
+            notification.setType(0L);
+            notification.setNotificationContent(String.format(
+                    "%s %s người mà bạn quan tâm đã đăng bài viết: '%s'",
+                    user.getFirstName(), user.getLastName(), post.getTitle(), comment.getContent()
+            ));
+            notification.setLink(String.format("/category/%d/detail-post/%d/page/%d", post.getCategory().getCategoryId(), post.getPostId(), 1, 10));
+
+            notificationRepo.save(notification);
+            simpMessagingTemplate.convertAndSendToUser(re.getSourceUser().toString(), "/topic/notifications", notificationMapper.convertToNotificationDto(notification));
+        }
+
+        return PostMapper.convertToCreatePostResponse(post);
     }
     @Transactional
     @Override
@@ -202,7 +229,10 @@ public class PostServiceImpl implements PostService {
         String currentUserEmail = securityUtil.getCurrentUsername();
         if (currentUserEmail == null || "anonymousUser".equals(currentUserEmail)){
             throw new AppException(ErrorCode.USER_NOT_FOUND);
-        } else {
+        }
+
+        User user = userRepo.findUserByEmail(currentUserEmail);
+        if(user == null) throw new AppException(ErrorCode.USER_NOT_FOUND);
             if (postRepo.findByPostId(editPostRequest.getPostId()) == null) {
                 throw new AppException(ErrorCode.POST_NOT_FOUND);
             }
@@ -265,7 +295,6 @@ public class PostServiceImpl implements PostService {
                 }
             }
             return PostMapper.convertToEditPostResponse(editPost);
-        }
     }
 
     private void handlePoll(Post post, String pollQuestion, Boolean changeVote, Boolean viewResultsNoVote, Boolean isUnlimited, Long maximumSelectableResponses, List<String> pollResponses) {
@@ -325,10 +354,6 @@ public class PostServiceImpl implements PostService {
             reportRepo.deleteAllByPostPostId(postId);
         }
 
-        List<Activity> activities = activityRepo.findAllByPostPostId(postId);
-        if(activities != null){
-            activityRepo.deleteAllByPostPostId(postId);
-        }
 
         List<Bookmark> bookmarks = bookmarkRepo.findByPostPostId(post.getPostId());
         if(bookmarks != null){
@@ -370,6 +395,7 @@ public class PostServiceImpl implements PostService {
         }
 
         User user = userRepo.findUserByEmail(currentUserEmail);
+        if(user == null) throw new AppException(ErrorCode.USER_NOT_FOUND);
 
         if(currentUserEmail == post.getLockedBy() || user.getRole() == Role.ADMIN){
             post.setIsLocked(false);
@@ -410,9 +436,6 @@ public class PostServiceImpl implements PostService {
         reportRepo.save(report);
 
         return "Reported successfully";
-
     }
-
-
 
 }

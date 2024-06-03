@@ -3,6 +3,7 @@ package com.example.foruminforexchange.model;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -20,19 +21,14 @@ public class Chat {
     @Enumerated(EnumType.STRING)
     private ChatType chatType; //private or group
 
-    @ManyToMany
-    @JoinTable(
-            name = "chat_members",
-            joinColumns = @JoinColumn(name = "chat_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private List<User> members;
+    private Long status;
 
-    @Column(name = "last_message_time")
-    private LocalDateTime lastMessageTime;
+    @Column(name = "receiver_status")
+    private Long receiverStatus;
+    @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserChat> members = new ArrayList<>();
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL)
     private List<Message> messages;
-
 
     public Chat(){
 
@@ -67,20 +63,12 @@ public class Chat {
         this.chatType = chatType;
     }
 
-    public List<User> getMembers() {
+    public List<UserChat> getMembers() {
         return members;
     }
 
-    public void setMembers(List<User> members) {
+    public void setMembers(List<UserChat> members) {
         this.members = members;
-    }
-
-    public LocalDateTime getLastMessageTime() {
-        return lastMessageTime;
-    }
-
-    public void setLastMessageTime(LocalDateTime lastMessageTime) {
-        this.lastMessageTime = lastMessageTime;
     }
 
     public List<Message> getMessages() {
@@ -89,5 +77,21 @@ public class Chat {
 
     public void setMessages(List<Message> messages) {
         this.messages = messages;
+    }
+
+    public Long getStatus() {
+        return status;
+    }
+
+    public void setStatus(Long status) {
+        this.status = status;
+    }
+
+    public Long getReceiverStatus() {
+        return receiverStatus;
+    }
+
+    public void setReceiverStatus(Long receiverStatus) {
+        this.receiverStatus = receiverStatus;
     }
 }

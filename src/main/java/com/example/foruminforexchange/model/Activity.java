@@ -15,9 +15,6 @@ public class Activity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = true)
-    private Post post;
 
     @Column(name = "activity_type")
     private String type;
@@ -30,9 +27,8 @@ public class Activity {
 
     private String link;
 
-    public Activity(User user, Post post, String type, String content, LocalDateTime createdAt) {
+    public Activity(User user, String type, String content, LocalDateTime createdAt) {
         this.user = user;
-        this.post = post;
         this.type = type;
         this.content = content;
         this.createdAt = createdAt;
@@ -47,14 +43,6 @@ public class Activity {
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public Post getPost() {
-        return post;
-    }
-
-    public void setPost(Post post) {
-        this.post = post;
     }
 
     public String getType() {

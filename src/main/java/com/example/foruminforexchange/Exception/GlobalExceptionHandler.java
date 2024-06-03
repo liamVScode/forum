@@ -52,6 +52,14 @@ public class GlobalExceptionHandler {
                 apiResponse.setCode(errorCode.PASSWORD_NOT_TRUE.getCode());
                 apiResponse.setMessage(errorCode.PASSWORD_NOT_TRUE.getMessage());
                 break;
+            case LOCKED_USER:
+                apiResponse.setCode(errorCode.LOCKED_USER.getCode());
+                apiResponse.setMessage(errorCode.LOCKED_USER.getMessage());
+                break;
+            case REPORT_EXISTED:
+                apiResponse.setCode(errorCode.REPORT_EXISTED.getCode());
+                apiResponse.setMessage(errorCode.REPORT_EXISTED.getMessage());
+                break;
             default:
                 apiResponse.setCode(1);
                 apiResponse.setMessage("An unknown error has occurred.");

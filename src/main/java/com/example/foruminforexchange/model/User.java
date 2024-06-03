@@ -6,6 +6,7 @@
     import org.springframework.security.core.userdetails.UserDetails;
 
     import java.time.LocalDate;
+    import java.time.LocalDateTime;
     import java.util.Collection;
     import java.util.Date;
     import java.util.List;
@@ -40,8 +41,6 @@
         @Column(name = "date_of_birth")
         private LocalDate dateOfBirth;
 
-
-
         @Column(length = 255)
         private String location;
 
@@ -49,6 +48,13 @@
         private String website;
 
         private Status status;
+
+        @Column(name = "is_locked")
+        private Boolean isLocked = false;
+
+        @ManyToOne
+        @JoinColumn(name = "locked_by")
+        private User lockedBy;
 
         @Column(columnDefinition = "NVARCHAR(255)")
         private String about;
@@ -61,6 +67,9 @@
 
         @Column(length = 255)
         private String twitter;
+
+        @Column(name = "create_at", nullable = false)
+        private LocalDateTime createAt = LocalDateTime.now();
 
         private Role role;
 
@@ -245,5 +254,29 @@
 
         public void setFacebookId(String facebookId) {
             this.facebookId = facebookId;
+        }
+
+        public Boolean getLocked() {
+            return isLocked;
+        }
+
+        public void setLocked(Boolean locked) {
+            isLocked = locked;
+        }
+
+        public User getLockedBy() {
+            return lockedBy;
+        }
+
+        public void setLockedBy(User lockedBy) {
+            this.lockedBy = lockedBy;
+        }
+
+        public LocalDateTime getCreateAt() {
+            return createAt;
+        }
+
+        public void setCreateAt(LocalDateTime createAt) {
+            this.createAt = createAt;
         }
     }

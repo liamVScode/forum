@@ -15,7 +15,7 @@ public class WebSocketConfiguration implements WebSocketMessageBrokerConfigurer{
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/websocket")
-                .setAllowedOrigins("http://localhost:4200", "https://localhost:4200")
+                .setAllowedOrigins("http://localhost:4200", "https://localhost:4200", "https://aeb8-115-76-60-100.ngrok-free.app/")
                 .withSockJS();
     }
 

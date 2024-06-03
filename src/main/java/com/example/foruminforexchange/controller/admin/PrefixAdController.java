@@ -12,7 +12,6 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin/prefixes")
-@CrossOrigin(origins = {"http://localhost:4200", "https://localhost:4200"})
 public class PrefixAdController {
 
     private final PrefixService prefixService;

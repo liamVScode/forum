@@ -54,6 +54,12 @@ public class CommentServiceImpl implements CommentService {
     @Autowired
     private NotificationRepo notificationRepo;
 
+    @Autowired
+    private LikeRepo likeRepo;
+
+    @Autowired CommentMapper commentMapper;
+
+    private NotificationMapper notificationMapper;
     @Override
     public Page<CommentDto> getAllCommentByPost(Long postId, Pageable pageable) {
         if (pageable == null || pageable.getPageSize() <= 0) {
@@ -70,7 +76,7 @@ public class CommentServiceImpl implements CommentService {
         if(comments == null){
             throw new AppException(ErrorCode.COMMENT_NOT_FOUND);
         }
-        Page<CommentDto> commentDtos = comments.map(comment -> CommentMapper.convertToCommentDto(comment));
+        Page<CommentDto> commentDtos = comments.map(comment -> commentMapper.convertToCommentDto(comment));
         return commentDtos;
     }
 
@@ -108,11 +114,10 @@ public class CommentServiceImpl implements CommentService {
 
             Activity activity = new Activity();
             activity.setCreatedAt(comment.getCreateAt());
-            activity.setPost(post);
             activity.setType("comment");
             activity.setContent(String.format(
-                    "Bạn đã bình luận về bài viết: '%s' với nội dung: '%s'",
-                    post.getTitle(), comment.getContent()
+                    "Bạn đã bình luận về bài viết: '%s''",
+                    post.getTitle()
             ));
             activity.setLink(String.format("/category/%d/detail-post/%d/page/%d", comment.getPost().getCategory().getCategoryId(), comment.getPost().getPostId(), findCommentPage(comment.getPost().getPostId(), comment.getCommentId(), 10)));
             activity.setUser(user);
@@ -125,14 +130,14 @@ public class CommentServiceImpl implements CommentService {
                 ownerNotification.setStatus(0L);
                 ownerNotification.setType(0L);
                 ownerNotification.setNotificationContent(String.format(
-                        "%s %s đã bình luận về bài viết của bạn: '%s' với nội dung: '%s'",
-                        user.getFirstName(), user.getLastName(), post.getTitle(), comment.getContent()
+                        "%s %s đã bình luận về bài viết của bạn: '%s'",
+                        user.getFirstName(), user.getLastName(), post.getTitle()
                 ));
                 ownerNotification.setLink(String.format("/category/%d/detail-post/%d/page/%d", comment.getPost().getCategory().getCategoryId(), comment.getPost().getPostId(), findCommentPage(comment.getPost().getPostId(), comment.getCommentId(), 10)));
                 if (post.getUser() != null) {
                     notificationRepo.save(ownerNotification);
                     System.out.println(post.getUser().getUserId().toString() + " aaaaa");
-                    simpMessagingTemplate.convertAndSendToUser(post.getUser().getUserId().toString(), "/topic/notifications", NotificationMapper.convertToNotificationDto(ownerNotification));
+                    simpMessagingTemplate.convertAndSendToUser(post.getUser().getUserId().toString(), "/topic/notifications", notificationMapper.convertToNotificationDto(ownerNotification));
                 } else {
                     throw new AppException(ErrorCode.USER_NOT_FOUND);
                 }
@@ -146,19 +151,19 @@ public class CommentServiceImpl implements CommentService {
                 notification.setStatus(0L);
                 notification.setType(0L);
                 notification.setNotificationContent(String.format(
-                        "%s %s đã bình luận về bài viết: '%s' mà bạn quan tâm với nội dung: '%s'",
-                        user.getFirstName(), user.getLastName(), post.getTitle(), comment.getContent()
+                        "%s %s đã bình luận về bài viết: '%s' mà bạn quan tâm",
+                        user.getFirstName(), user.getLastName(), post.getTitle()
                 ));
                 notification.setLink(String.format("/category/%d/detail-post/%d/page/%d", comment.getPost().getCategory().getCategoryId(), comment.getPost().getPostId(), findCommentPage(comment.getPost().getPostId(), comment.getCommentId(), 10)));
 
                 notificationRepo.save(notification);
-                simpMessagingTemplate.convertAndSendToUser(us.getUserId().toString(), "/topic/notifications", NotificationMapper.convertToNotificationDto(notification));
+                simpMessagingTemplate.convertAndSendToUser(us.getUserId().toString(), "/topic/notifications", notificationMapper.convertToNotificationDto(notification));
             }
 
             Comment reloadedComment = commentRepo.findByCommentIdWithImages(savedComment.getCommentId());
 
             if (reloadedComment != null) {
-                return CommentMapper.convertToCommentDto(reloadedComment);
+                return commentMapper.convertToCommentDto(reloadedComment);
             } else {
                 throw new AppException(ErrorCode.COMMENT_NOT_FOUND);
             }
@@ -187,8 +192,8 @@ public class CommentServiceImpl implements CommentService {
         List<ImageComment> existingImages = imageCommentRepo.findAllByCommentCommentId(comment.getCommentId());
         for (ImageComment image : existingImages) {
             fileStorageService.deleteFile(image.getImageUrl());
-            imageCommentRepo.delete(image);
         }
+        imageCommentRepo.deleteByCommentId(comment.getCommentId());
 
         // Lưu hình ảnh mới và cập nhật cơ sở dữ liệu
         if (imageFiles != null && !imageFiles.isEmpty()) {
@@ -200,7 +205,7 @@ public class CommentServiceImpl implements CommentService {
         }
 
         Comment savedComment = commentRepo.save(comment);
-        return CommentMapper.convertToCommentDto(savedComment);
+        return commentMapper.convertToCommentDto(savedComment);
     }
 
     @Override
@@ -215,8 +220,19 @@ public class CommentServiceImpl implements CommentService {
         User user = userRepo.findUserByEmail(currentUserEmail);
         Comment comment = commentRepo.findByCommentIdAndPostPostIdAndUserUserId(commentId, postId, user.getUserId());
         if(comment == null){
-            return "Comment not exited";
+            throw new AppException(ErrorCode.NOT_FOUND);
         }
+
+        List<ImageComment> existingImages = imageCommentRepo.findAllByCommentCommentId(comment.getCommentId());
+        for (ImageComment image : existingImages) {
+            fileStorageService.deleteFile(image.getImageUrl());
+        }
+        imageCommentRepo.deleteByCommentId(comment.getCommentId());
+
+        List<Like> likes = likeRepo.findAllByCommentCommentId(commentId);
+        likeRepo.deleteByCommentCommentId(commentId);
+
+
         commentRepo.delete(comment);
         return "Delete Successfully";
     }

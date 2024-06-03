@@ -6,6 +6,7 @@ import lombok.Data;
 public class FacebookUser {
     private String facebookId;
     private String email;
+    private String avatar;
     private String firstName;
     private String lastName;
     private String birthday;

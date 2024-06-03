@@ -15,4 +15,6 @@ public interface ImageCommentRepo extends JpaRepository<ImageComment, Long> {
     @Transactional
     @Query("DELETE FROM ImageComment ic WHERE ic.comment.commentId = :commentId")
     void deleteByCommentId(Long commentId);
+
+
 }

@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin/categories")
-@CrossOrigin(origins = {"http://localhost:4200", "https://localhost:4200"})
 public class CategoryAdController {
 
     private final CategoryService categoryService;

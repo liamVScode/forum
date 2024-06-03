@@ -10,6 +10,8 @@ public class ChatDto {
     Long chatId;
     String chatName;
     ChatType chatType;
+    Long status;
+    Long receiverStatus;
     List<MessageDto> messageDtos;
     List<UserDto> userDtos;
 }

@@ -1,10 +1,8 @@
 package com.example.foruminforexchange.service;
 
-import com.example.foruminforexchange.dto.ActivityDto;
-import com.example.foruminforexchange.dto.EditProfileRequest;
-import com.example.foruminforexchange.dto.UpdateStatusRequest;
-import com.example.foruminforexchange.dto.UserDto;
+import com.example.foruminforexchange.dto.*;
 import com.example.foruminforexchange.model.Activity;
+import com.example.foruminforexchange.model.Relationship;
 import com.example.foruminforexchange.model.Status;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +15,9 @@ public interface UserService {
 
     UserDetailsService userDetailsService();
 
-    Page<ActivityDto> getAllActivityByUserId(Pageable pageable);
+    Page<ActivityDto> getAllActivityByCurrentUser(Pageable pageable);
+
+    Page<ActivityDto> getAllActivityByUserId(Long userId, Pageable pageable);
 
     Page<UserDto> getAllUser(Pageable pageable);
 
@@ -26,4 +26,16 @@ public interface UserService {
     UserDto changeAvatar(MultipartFile avatar);
 
     UserDto updateStatus(UpdateStatusRequest updateStatusRequest);
+
+    UserDto lockUser(Long userId);
+
+    UserDto unlockUser(Long userId);
+
+    String followUser(Long userId);
+
+    String unfollowUser(Long userId);
+
+    List<RelationshipDto> getAllRelationship();
+
+    UserDto getInformationUser(Long userId);
 }

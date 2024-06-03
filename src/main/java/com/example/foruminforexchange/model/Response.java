@@ -12,7 +12,7 @@ public class Response {
     @Column(name = "response_id")
     private Long responseId;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, length = 5000)
     private String responseContent;
 
     private Long voteCount;

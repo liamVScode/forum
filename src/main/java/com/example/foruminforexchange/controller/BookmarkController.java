@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/posts/bookmark")
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"http://localhost:4200", "https://localhost:4200"})
 public class BookmarkController {
 
     private final BookrmarkService bookrmarkService;
@@ -29,6 +28,20 @@ public class BookmarkController {
     public ApiResponse<String> unbookmarkPost(@RequestParam("postId") Long postId){
         ApiResponse<String> apiResponse = new ApiResponse<>();
         apiResponse.setResult(bookrmarkService.unbookmarkPost(postId));
+        return apiResponse;
+    }
+
+    @GetMapping("/all-bookmark-post")
+    public ApiResponse<Page<BookmarkDto>> getAllBookmarkPost(Pageable pageable){
+        ApiResponse<Page<BookmarkDto>> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(bookrmarkService.getAllBookmarkPost(pageable));
+        return apiResponse;
+    }
+
+    @GetMapping("/get-bookmark-by-post")
+    public ApiResponse<Boolean> getBookmarkByPostAndUser(@RequestParam Long postId){
+        ApiResponse<Boolean> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(bookrmarkService.getBookmarkByPostAndUser(postId));
         return apiResponse;
     }
 }

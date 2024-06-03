@@ -4,36 +4,48 @@ import com.example.foruminforexchange.dto.FacebookUser;
 import com.example.foruminforexchange.dto.GoogleUser;
 import com.example.foruminforexchange.dto.UserDto;
 import com.example.foruminforexchange.model.User;
+import com.example.foruminforexchange.repository.CommentRepo;
+import com.example.foruminforexchange.repository.LikeRepo;
+import com.example.foruminforexchange.repository.PostRepo;
 import com.example.foruminforexchange.service.StatisticsService;
 import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UserMapper {
-    private FacebookUser facebookUser;
 
-    private final StatisticsService statisticsService;
+    private LikeRepo likeRepo;
+    private CommentRepo commentRepo;
+    private PostRepo postRepo;
 
-    public UserMapper(StatisticsService statisticsService) {
-        this.statisticsService = statisticsService;
+    @Autowired
+    public UserMapper(LikeRepo likeRepo, CommentRepo commentRepo, PostRepo postRepo) {
+        this.likeRepo = likeRepo;
+        this.commentRepo = commentRepo;
+        this.postRepo = postRepo;
     }
 
-    public static FacebookUser convertToFacebookUser(JSONObject jsonObject){
+
+
+    public  FacebookUser convertToFacebookUser(JSONObject jsonObject){
         FacebookUser facebookUser = new FacebookUser();
         facebookUser.setFacebookId((String) jsonObject.get("id"));
         facebookUser.setEmail((String) jsonObject.get("email"));
         facebookUser.setFirstName((String) jsonObject.get("first_name"));
         facebookUser.setLastName((String) jsonObject.get("last_name"));
+        facebookUser.setAvatar((String) jsonObject.get("picture"));
         return facebookUser;
     }
 
-    public static GoogleUser convertToGoogleUser(JSONObject jsonObject){
+    public  GoogleUser convertToGoogleUser(JSONObject jsonObject){
         String email = (String) jsonObject.get("email");
         String firstName = (String) jsonObject.get("firstName");
         String lastName = (String) jsonObject.get("lastName");
         return new GoogleUser(email, firstName, lastName);
     }
 
-    public static User convertToUser(UserDto userDto){
+    public  User convertToUser(UserDto userDto){
         User user = new User();
         user.setEmail(userDto.getEmail());
         user.setFirstName(userDto.getFirstName());
@@ -42,7 +54,7 @@ public class UserMapper {
         return user;
     }
 
-    public static UserDto convertToUserDto(User user){
+    public UserDto convertToUserDto(User user){
         UserDto userDto = new UserDto();
         userDto.setUserId(user.getUserId());
         userDto.setEmail(user.getEmail());
@@ -58,6 +70,14 @@ public class UserMapper {
         userDto.setSkype(user.getSkype());
         userDto.setRole(user.getRole());
         userDto.setStatus(user.getStatus());
+        userDto.setIsLocked(user.getLocked());
+        if (user.getLockedBy() != null) {
+            userDto.setLockedBy(convertToUserDto(user.getLockedBy()));
+        } else userDto.setLockedBy(null);
+        userDto.setCreateAt(user.getCreateAt());
+        userDto.setNumberOfComment(commentRepo.countAllByUserUserId(user.getUserId()));
+        userDto.setNumberOfLike(likeRepo.countAllByUserUserId(user.getUserId()));
+        userDto.setNumberOfPost(postRepo.countAllByUserUserId(user.getUserId()));
         return userDto;
     }
 }

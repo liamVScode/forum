@@ -8,8 +8,6 @@ import java.time.LocalDateTime;
 public class ActivityDto {
     String type;
     String content;
-    Long postId;
-    String postContent;
     LocalDateTime createdAt;
     String link;
 }

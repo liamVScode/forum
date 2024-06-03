@@ -14,11 +14,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/forum")
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"http://localhost:4200", "https://localhost:4200"})
 public class ForumController {
 
     private final ForumService forumService;
-
 
     @GetMapping("/forum-info")
     public ApiResponse<List<ForumInforResponse>> getForumInfo(){

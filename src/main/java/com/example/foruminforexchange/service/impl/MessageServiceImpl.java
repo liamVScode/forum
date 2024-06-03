@@ -13,6 +13,7 @@ import com.example.foruminforexchange.repository.MessageRepo;
 import com.example.foruminforexchange.repository.UserRepo;
 import com.example.foruminforexchange.service.MessageService;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
@@ -25,30 +26,27 @@ public class MessageServiceImpl implements MessageService {
     private MessageRepo messageRepo;
     private ChatRepo chatRepo;
     private UserRepo userRepo;
+    @Autowired
+    private MessageMapper messageMapper;
     @Override
     public MessageDto addNewMessage(MessageRequest messageRequest) {
-        // Lấy thông tin chat từ chatId được cung cấp, nếu không tìm thấy thì ném ra ngoại lệ
         Chat chat = chatRepo.findById(messageRequest.getChatId())
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
-        chat.setLastMessageTime(LocalDateTime.now()); // Cập nhật thời gian tin nhắn cuối
 
-        // Lấy thông tin người dùng từ userId được cung cấp, nếu không tìm thấy thì ném ra ngoại lệ
         User user = userRepo.findById(messageRequest.getUserId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        // Tạo mới một tin nhắn
         Message message = new Message();
-        message.setUser(user); // Thiết lập người dùng cho tin nhắn
-        message.setMessageContent(messageRequest.getMessageContent()); // Thiết lập nội dung tin nhắn
-        message.setCreateAt(LocalDateTime.now()); // Thiết lập thời gian tạo
-        message.setChat(chat); // Thiết lập chat cho tin nhắn
-
-        // Lưu tin nhắn vào cơ sở dữ liệu
+        message.setUser(user);
+        message.setMessageContent(messageRequest.getMessageContent());
+        message.setCreateAt(LocalDateTime.now());
+        message.setChat(chat);
         Message savedMessage = messageRepo.save(message);
-        chatRepo.save(chat); // Cập nhật thông tin chat
+        chat.setStatus(1L);
+        chat.setReceiverStatus(0L);
+        chatRepo.save(chat);
 
-        // Chuyển đổi tin nhắn đã lưu thành DTO và trả về
-        return MessageMapper.mapToMessageDto(savedMessage);
+        return messageMapper.mapToMessageDto(savedMessage);
     }
 
 }

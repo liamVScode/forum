@@ -9,10 +9,7 @@ import com.example.foruminforexchange.dto.MessageDto;
 import com.example.foruminforexchange.mapper.ChatMapper;
 import com.example.foruminforexchange.mapper.MessageMapper;
 import com.example.foruminforexchange.mapper.UserMapper;
-import com.example.foruminforexchange.model.Chat;
-import com.example.foruminforexchange.model.ChatType;
-import com.example.foruminforexchange.model.Message;
-import com.example.foruminforexchange.model.User;
+import com.example.foruminforexchange.model.*;
 import com.example.foruminforexchange.repository.ChatRepo;
 import com.example.foruminforexchange.repository.MessageRepo;
 import com.example.foruminforexchange.repository.UserRepo;
@@ -27,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,12 +37,27 @@ public class ChatServiceImpl implements ChatService {
 
     @Autowired
     private SecurityUtil securityUtil;
+    @Autowired
+    private ChatMapper chatMapper;
+    @Autowired
+    private MessageMapper messageMapper;
 
     @Override
     public List<MessageDto> getMessageByChatId(Long chatId) {
+        String currentUserEmail = securityUtil.getCurrentUsername();
+        if (currentUserEmail == null || "anonymousUser".equals(currentUserEmail)){
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+        User user = userRepo.findUserByEmail(currentUserEmail);
         List<Message> messages = messageRepo.findByChatChatId(chatId);
+        Chat chat = chatRepo.findById(chatId).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+        Message lastMessage = messages.get(messages.size() - 1);
+        if (!lastMessage.getUser().getUserId().equals(user.getUserId())) {
+            chat.setReceiverStatus(1L);
+            chatRepo.save(chat);
+        }
         if(messages != null){
-            return messages.stream().map((message) -> MessageMapper.mapToMessageDto(message)).collect(Collectors.toList());
+            return messages.stream().map((message) -> messageMapper.mapToMessageDto(message)).collect(Collectors.toList());
         }
         else{
             return null;
@@ -62,7 +75,7 @@ public class ChatServiceImpl implements ChatService {
         if(chat == null){
             return null;
         }
-        return ChatMapper.convertToChatDto(chat);
+        return chatMapper.convertToChatDto(chat);
     }
 
     @Override
@@ -73,19 +86,37 @@ public class ChatServiceImpl implements ChatService {
         }
         User user = userRepo.findUserByEmail(currentUserEmail);
         List<Chat> chats = chatRepo.findAllChatsByUserId(user.getUserId());
-        List<ChatDto> chatDtos = chats.stream().map(chat -> ChatMapper.convertToChatDto(chat)).collect(Collectors.toList());
+        chats.sort((chat1, chat2) -> {
+            LocalDateTime lastMessageTime1 = chat1.getMessages().stream()
+                    .map(Message::getCreateAt)
+                    .max(LocalDateTime::compareTo)
+                    .orElse(null);
+            LocalDateTime lastMessageTime2 = chat2.getMessages().stream()
+                    .map(Message::getCreateAt)
+                    .max(LocalDateTime::compareTo)
+                    .orElse(null);
+
+            if (lastMessageTime1 == null && lastMessageTime2 == null) {
+                return 0;
+            } else if (lastMessageTime1 == null) {
+                return 1;
+            } else if (lastMessageTime2 == null) {
+                return -1;
+            } else {
+                return lastMessageTime2.compareTo(lastMessageTime1);
+            }
+        });
+
+        List<ChatDto> chatDtos = chats.stream().map(chat -> chatMapper.convertToChatDto(chat)).collect(Collectors.toList());
         return chatDtos;
     }
+
 
     @Override
     public ChatDto createChat(CreateChatRequest createChatRequest) {
         System.out.println(createChatRequest.getChatName() + "aaaaaa");
-        List<User> users = new ArrayList<>();
+        List<UserChat> userChats = new ArrayList<>();
         User user = userRepo.findById(createChatRequest.getUserId().get(0)).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        for(Long userId : createChatRequest.getUserId()){
-            User user1 = userRepo.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-            users.add(user1);
-        }
         Chat chat = new Chat();
         chat.setChatName(createChatRequest.getChatName() == null ? user.getFirstName() + user.getLastName() : createChatRequest.getChatName());
         if(createChatRequest.getChatType() == 0 || createChatRequest.getChatType() == null){
@@ -93,11 +124,17 @@ public class ChatServiceImpl implements ChatService {
         }else {
             chat.setChatType(ChatType.GROUP);
         }
+        for(Long userId : createChatRequest.getUserId()){
+            User user1 = userRepo.findById(userId).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+            UserChat userChat = new UserChat();
+            userChat.setChat(chat);
+            userChat.setUser(user1);
+            userChats.add(userChat);
+        }
 
-        chat.setMembers(users);
-        chat.setLastMessageTime(LocalDateTime.now());
+        chat.setMembers(userChats);
         chatRepo.save(chat);
-        return ChatMapper.convertToChatDto(chat);
+        return chatMapper.convertToChatDto(chat);
     }
 
     @Override

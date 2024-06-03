@@ -2,16 +2,36 @@ package com.example.foruminforexchange.mapper;
 
 import com.example.foruminforexchange.dto.*;
 import com.example.foruminforexchange.model.*;
+import com.example.foruminforexchange.repository.CommentRepo;
+import com.example.foruminforexchange.repository.LikeRepo;
+import com.example.foruminforexchange.repository.PostRepo;
 import com.example.foruminforexchange.service.ResponseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Component
 @RequiredArgsConstructor
 public class PostMapper {
+
+    @Autowired
+    private CommentRepo commentRepo;
+
+    @Autowired
+    private LikeRepo likeRepo;
+
+    @Autowired
+    private PostRepo postRepo;
+    @Autowired
+    private CommentMapper commentMapper;
+    @Autowired
+    private UserMapper userMapper;
+    @Autowired
+    private ReportMapper reportMapper;
 
     public static CreatePostResponse convertToCreatePostResponse(Post post){
         CreatePostResponse createPostResponse = new CreatePostResponse();
@@ -29,7 +49,7 @@ public class PostMapper {
         return editPostResponse;
     }
 
-    public static PostDto convertToPostDto(Post post) {
+    public PostDto convertToPostDto(Post post) {
         PostDto postDto = new PostDto();
         postDto.setPostId(post.getPostId());
         postDto.setTitle(post.getTitle());
@@ -41,7 +61,7 @@ public class PostMapper {
         postDto.setShareCount(post.getShareCount());
         postDto.setReportCount(post.getReportCount());
         postDto.setLocked(post.isLocked());
-        postDto.setUser(UserMapper.convertToUserDto(post.getUser()));
+        postDto.setUser(userMapper.convertToUserDto(post.getUser()));
         if(post.getPrefix() != null){
             postDto.setPrefix(PrefixMapper.convertToPrefixDto(post.getPrefix()));
         }
@@ -51,13 +71,13 @@ public class PostMapper {
         }
         if(post.getReport() != null){
             List<ReportDto> reportDtos = post.getReport().stream()
-                    .map(report -> ReportMapper.convertToReportDto(report))
+                    .map(report -> reportMapper.convertToReportDto(report))
                     .collect(Collectors.toList());
             postDto.setReportDto(reportDtos);
         }else postDto.setReportDto(null);
 
         List<CommentDto> commentDtos = post.getComments().stream()
-                .map(comment -> CommentMapper.convertToCommentDto(comment))
+                .map(comment -> commentMapper.convertToCommentDto(comment))
                 .collect(Collectors.toList());
         postDto.setCommentDto(commentDtos);
         return postDto;

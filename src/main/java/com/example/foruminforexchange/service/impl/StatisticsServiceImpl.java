@@ -11,10 +11,18 @@ import com.example.foruminforexchange.repository.CommentRepo;
 import com.example.foruminforexchange.repository.LikeRepo;
 import com.example.foruminforexchange.repository.PostRepo;
 import com.example.foruminforexchange.repository.UserRepo;
+import com.example.foruminforexchange.service.BaseRedisService;
 import com.example.foruminforexchange.service.StatisticsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,6 +34,9 @@ public class StatisticsServiceImpl implements StatisticsService {
     private final CommentRepo commentRepo;
     private final PostRepo postRepo;
     private final LikeRepo likeRepo;
+    @Autowired
+    private UserMapper userMapper;
+    private final BaseRedisService baseRedisService;
     @Override
     public Long getNumberOfOnlineUser() {
         Long numberOfOnlineUser = userRepo.countByStatusAndRole(Status.ONLINE, Role.USER);
@@ -36,19 +47,107 @@ public class StatisticsServiceImpl implements StatisticsService {
     public List<UserDto> getListOnlineAdmin() {
         List<User> users = userRepo.findAllByRole(Status.ONLINE, Role.ADMIN);
         if(users == null) throw new AppException(ErrorCode.USER_NOT_FOUND);
-        List<UserDto> userDtos = users.stream().map(user -> UserMapper.convertToUserDto(user)).collect(Collectors.toList());
+        List<UserDto> userDtos = users.stream().map(user -> userMapper.convertToUserDto(user)).collect(Collectors.toList());
         return userDtos;
     }
 
     @Override
     public Long getNumberOfPostPerDay() {
-        return null;
+        String key = "average_posts_per_day";
+        if (baseRedisService.hashExits(key, "average")) {
+            Integer average = (Integer) baseRedisService.hashGet(key, "average");
+            if (average != null) {
+                long roundedAverage = (long) Math.ceil(average);
+                return roundedAverage;
+            } else {
+                return 0L;
+            }
+        } else {
+            updateAveragePostsPerMonth();
+            Integer average = (Integer) baseRedisService.hashGet(key, "average");
+            if (average != null) {
+                long roundedAverage = (long) Math.ceil(average);
+                return roundedAverage;
+            } else {
+                return 0L;
+            }
+        }
     }
 
     @Override
     public Long getNumberOfPostPerMonth() {
-        return null;
+        String key = "average_posts_per_month";
+        if (baseRedisService.hashExits(key, "average")) {
+            Integer average = (Integer) baseRedisService.hashGet(key, "average");
+            if (average != null) {
+                long roundedAverage = (long) Math.ceil(average);
+                return roundedAverage;
+            } else {
+                return 0L;
+            }
+        } else {
+            updateAveragePostsPerMonth();
+            Integer average = (Integer) baseRedisService.hashGet(key, "average");
+            if (average != null) {
+                long roundedAverage = (long) Math.ceil(average);
+                return roundedAverage;
+            } else {
+                return 0L;
+            }
+        }
     }
+
+
+    @Scheduled(cron = "0 0 5 * * *") // Hàng ngày vào lúc 5h sáng
+    public void updateAveragePostsPerDay() {
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        LocalDateTime startDateTime = yesterday.atStartOfDay();
+        LocalDateTime endDateTime = yesterday.plusDays(1).atStartOfDay();
+
+        Long postsYesterday = postRepo.countByCreateAtBetween(startDateTime, endDateTime);
+
+        baseRedisService.hashSet("posts_per_day", yesterday.toString(), postsYesterday);
+
+        if (postsYesterday > 0) {
+            List<Object> dailyCounts = baseRedisService.hashGetByFieldPrefix("posts_per_day", "");
+            Double average = dailyCounts.stream()
+                    .mapToLong(count -> ((Integer) count).longValue()) // Cast to Integer
+                    .average()
+                    .orElse(0.0);
+
+            Long roundedAverage = (long) Math.ceil(average);
+
+            baseRedisService.hashSet("average_posts_per_day", "average", roundedAverage);
+            baseRedisService.setTimeToLive("average_posts_per_day", 1L);
+        } else {
+            // If there were no posts yesterday, set the rounded average to 0
+            baseRedisService.hashSet("average_posts_per_day", "average", 0L);
+            baseRedisService.setTimeToLive("average_posts_per_day", 1L);
+        }
+    }
+
+    @Scheduled(cron = "0 0 5 1 * *") // Hàng tháng vào lúc 5h sáng ngày 1
+    public void updateAveragePostsPerMonth() {
+        LocalDate lastMonth = LocalDate.now().minusMonths(1);
+        LocalDateTime startDateTime = lastMonth.atStartOfDay();
+        LocalDateTime endDateTime = lastMonth.plusDays(1).atStartOfDay();
+
+        Long postsLastMonth = postRepo.countByCreateAtBetween(startDateTime, endDateTime);
+
+        baseRedisService.hashSet("posts_per_month", lastMonth.toString(), postsLastMonth);
+
+        List<Object> monthlyCounts = baseRedisService.hashGetByFieldPrefix("posts_per_month", "");
+        Double average = monthlyCounts.stream()
+                .mapToLong(count -> ((Integer) count).longValue())
+                .average()
+                .orElse(0.0);
+        Long roundedAverage = (long) Math.ceil(average);
+
+        baseRedisService.hashSet("average_posts_per_month", "average", roundedAverage);
+        baseRedisService.setTimeToLive("average_posts_per_month", 30L);
+    }
+
+
 
     @Override
     public Long getNuumberOfPost() {

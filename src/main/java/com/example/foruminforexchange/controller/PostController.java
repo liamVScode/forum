@@ -15,7 +15,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"http://localhost:4200", "https://localhost:4200"})
 public class PostController {
 
     private final PostService postService;
@@ -103,13 +102,12 @@ public class PostController {
             @RequestParam(value = "searchKeyword", required = false) String searchKeyword,
             @RequestParam(value = "updateTime", required = false) Long updateTime,
             @RequestParam(value = "postType", required = false) Long postType,
+            @RequestParam(value = "report", required = false) Long report,
             @RequestParam(value = "sortField", required = false) String sortField,
             @RequestParam(value = "sortOrder", required = false) String sortOrder,
             Pageable pageable){
         ApiResponse<Page<PostDto>> apiResponse = new ApiResponse<>();
-
-        apiResponse.setResult(searchService.filterPost(prefixId, searchKeyword, updateTime, postType,sortField, sortOrder, pageable));
-
+        apiResponse.setResult(searchService.filterPost(prefixId, searchKeyword, updateTime, postType, report, sortField, sortOrder, pageable));
         return apiResponse;
     }
 

@@ -13,7 +13,7 @@ public class Comment {
     @Column(name = "comment_id")
     private Long commentId;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, length = 5000)
     private String content;
 
     private Long type;

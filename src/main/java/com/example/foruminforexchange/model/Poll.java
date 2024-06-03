@@ -13,7 +13,7 @@ public class Poll {
     @Column(name = "poll_id")
     private Long pollId;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, length = 5000)
     private String question;
 
     @Column(name = "maximum_selectable_responses")

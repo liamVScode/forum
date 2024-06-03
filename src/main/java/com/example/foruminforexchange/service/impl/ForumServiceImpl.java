@@ -32,6 +32,8 @@ public class ForumServiceImpl implements ForumService {
     private PostRepo postRepo;
     @Autowired
     private CommentRepo commentRepo;
+    @Autowired
+    private PostMapper postMapper;
 
     @Override
     public List<ForumInforResponse> getForumInfor() {
@@ -59,7 +61,7 @@ public class ForumServiceImpl implements ForumService {
                 // Lấy bài viết mới nhất
                 Post latestPost = getLatestPost(category);
                 if(latestPost != null){
-                    categoryForumInfo.setPostDto(PostMapper.convertToPostDto(latestPost));
+                    categoryForumInfo.setPostDto(postMapper.convertToPostDto(latestPost));
                 }
 
                 categoryForumInfos.add(categoryForumInfo);

@@ -12,6 +12,7 @@ import com.example.foruminforexchange.repository.NotificationRepo;
 import com.example.foruminforexchange.repository.UserRepo;
 import com.example.foruminforexchange.service.NotificationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -28,6 +29,8 @@ public class NotificationServiceImpl implements NotificationService {
 
     private final UserRepo userRepo;
     private final SecurityUtil securityUtil;
+    @Autowired
+    private NotificationMapper notificationMapper;
 
     @Override
     public List<NotificationDto> getAllNotiByUser(Pageable pageable) {
@@ -39,7 +42,7 @@ public class NotificationServiceImpl implements NotificationService {
         User user = userRepo.findUserByEmail(currentUserEmail);
         pageable = PageRequest.of(0, 20, Sort.by("createAt").descending());
         List<Notification> notifications = notificationRepo.findAllByUserUserId(user.getUserId(), pageable);
-        List<NotificationDto> notificationDtos = notifications.stream().map(notification -> NotificationMapper.convertToNotificationDto(notification)).collect(Collectors.toList());
+        List<NotificationDto> notificationDtos = notifications.stream().map(notification -> notificationMapper.convertToNotificationDto(notification)).collect(Collectors.toList());
         return notificationDtos;
     }
 

@@ -4,17 +4,21 @@ import com.example.foruminforexchange.dto.MessageDto;
 import com.example.foruminforexchange.dto.UserDto;
 import com.example.foruminforexchange.model.Message;
 import com.example.foruminforexchange.repository.ChatRepo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class MessageMapper {
-    private static ChatRepo chatRepo;
-    public static MessageDto mapToMessageDto(Message message){
+    @Autowired
+    private UserMapper userMapper;
+    public MessageDto mapToMessageDto(Message message){
         if(message == null){
             return null;
         }
         return new MessageDto(
             message.getMessageId(),
             message.getChat() != null ? message.getChat().getChatId() : null,
-            message.getUser() != null ? UserMapper.convertToUserDto(message.getUser()) : null,
+            message.getUser() != null ? userMapper.convertToUserDto(message.getUser()) : null,
             message.getMessageContent(),
             message.getCreateAt()
         );

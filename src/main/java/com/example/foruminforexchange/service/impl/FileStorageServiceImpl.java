@@ -8,6 +8,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -51,7 +53,7 @@ public class FileStorageServiceImpl implements FileStorageService {
             file.transferTo(targetLocation);
 
             // Trả về URL của tệp vừa lưu
-            return "https://localhost:3000/Image/" + uniqueFileName;
+            return "https://localhost:5000/Image/" + uniqueFileName;
         } catch (IOException ex) {
             throw new RuntimeException("Could not store file " + uniqueFileName + ". Please try again!", ex);
         }
@@ -60,10 +62,16 @@ public class FileStorageServiceImpl implements FileStorageService {
     @Override
     public void deleteFile(String filePath) {
         try {
+            if (filePath.startsWith("http")) {
+                URI uri = new URI(filePath);
+                filePath = Paths.get(uri.getPath()).getFileName().toString();
+            }
+
             Path file = fileStorageLocation.resolve(filePath).normalize();
             Files.deleteIfExists(file);
-        } catch (IOException ex) {
+        } catch (IOException | URISyntaxException ex) {
             throw new RuntimeException("Failed to delete the file: " + filePath, ex);
         }
     }
+
 }

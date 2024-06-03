@@ -2,10 +2,8 @@ package com.example.foruminforexchange.Specifications;
 
 import com.example.foruminforexchange.model.Comment;
 import com.example.foruminforexchange.model.Post;
-import jakarta.persistence.criteria.Expression;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
-import jakarta.persistence.criteria.Subquery;
+import com.example.foruminforexchange.model.Report;
+import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
@@ -74,10 +72,17 @@ public class PostSpecification {
         };
     }
 
-
-
-
-
-
-
+    public static Specification<Post> hasReport(Long report) {
+        return (root, query, criteriaBuilder) -> {
+            if (report == 0) {
+                // Trả về các bài viết không có report
+                return criteriaBuilder.isEmpty(root.get("report"));
+            } else if (report == 1) {
+                // Trả về các bài viết có report
+                Join<Post, Report> reports = root.join("report", JoinType.LEFT);
+                return criteriaBuilder.isNotNull(reports.get("reportId"));
+            }
+            return criteriaBuilder.conjunction();
+        };
+    }
 }

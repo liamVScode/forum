@@ -4,13 +4,14 @@ import com.example.foruminforexchange.model.Role;
 import com.example.foruminforexchange.model.Status;
 import com.example.foruminforexchange.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface UserRepo extends JpaRepository<User, Long> {
+public interface UserRepo extends JpaRepository<User, Long>, JpaSpecificationExecutor {
 
     Optional<User> findByFacebookId(String facebookId);
     Optional<User> findByEmail(String email);

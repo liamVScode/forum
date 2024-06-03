@@ -19,7 +19,6 @@ import java.security.Principal;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = {"http://localhost:4200", "https://localhost:4200"})
 public class WebSocketController {
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
@@ -29,7 +28,7 @@ public class WebSocketController {
     private MessageService messageService;
 
     @MessageMapping("/chat/{chatId}")
-    public void chat(@DestinationVariable Long chatId, MessageRequest messageRequest){
+    public void chat(@DestinationVariable Long chatId, MessageRequest messageRequest) {
         System.out.println(messageRequest.getMessageContent());
         System.out.println(chatId);
         MessageDto savedMessageDto = messageService.addNewMessage(messageRequest);

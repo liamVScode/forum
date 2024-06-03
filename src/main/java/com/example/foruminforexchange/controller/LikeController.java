@@ -11,7 +11,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/posts/comments/likes")
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"http://localhost:4200", "https://localhost:4200"})
 public class LikeController {
 
     private final LikeService likeService;

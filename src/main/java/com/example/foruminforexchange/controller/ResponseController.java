@@ -13,7 +13,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/posts/polls/responses")
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"http://localhost:4200", "https://localhost:4200"})
 public class ResponseController {
 
     private final ResponseService responseService;

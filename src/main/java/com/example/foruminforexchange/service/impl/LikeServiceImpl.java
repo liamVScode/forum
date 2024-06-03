@@ -46,13 +46,17 @@ public class LikeServiceImpl implements LikeService {
     private final NotificationRepo notificationRepo;
     @Autowired
     private final SimpMessagingTemplate simpMessagingTemplate;
+    @Autowired
+    private LikeMapper likeMapper;
+    @Autowired
+    private NotificationMapper notificationMapper;
     @Override
     public List<LikeDto> getAllLikeByComment(Long commentId) {
         List<Like> likes = likeRepo.findAllByCommentCommentId(commentId);
         if(likes == null){
             throw new AppException(ErrorCode.NOT_FOUND);
         }
-        List<LikeDto> likeDtos = likes.stream().map(like -> LikeMapper.convertToLikeDto(like)).collect(Collectors.toList());
+        List<LikeDto> likeDtos = likes.stream().map(like -> likeMapper.convertToLikeDto(like)).collect(Collectors.toList());
         return likeDtos;
     }
 
@@ -103,7 +107,7 @@ public class LikeServiceImpl implements LikeService {
             ownerNotification.setLink(String.format("/category/%d/detail-post/%d/page/%d", comment.getPost().getCategory().getCategoryId(), comment.getPost().getPostId(), findCommentPage(comment.getPost().getPostId(), commentId, 10)));
             if (comment.getUser() != null) {
                 notificationRepo.save(ownerNotification);
-                simpMessagingTemplate.convertAndSendToUser(comment.getUser().getUserId().toString(), "/topic/notifications", NotificationMapper.convertToNotificationDto(ownerNotification));
+                simpMessagingTemplate.convertAndSendToUser(comment.getUser().getUserId().toString(), "/topic/notifications", notificationMapper.convertToNotificationDto(ownerNotification));
             } else {
                 throw new AppException(ErrorCode.USER_NOT_FOUND);
             }

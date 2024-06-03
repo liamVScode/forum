@@ -3,6 +3,8 @@ package com.example.foruminforexchange.repository;
 import com.example.foruminforexchange.model.Bookmark;
 import com.example.foruminforexchange.model.Post;
 import com.example.foruminforexchange.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -22,4 +24,6 @@ public interface BookmarkRepo extends JpaRepository<Bookmark, Long> {
     @Transactional
     @Query("DELETE FROM Bookmark ic WHERE ic.post.postId = :postId")
     void deleteAllByPostPostId(Long postId);
+
+    Page<Bookmark> findAllByUserUserId(Long userId, Pageable pageable);
 }

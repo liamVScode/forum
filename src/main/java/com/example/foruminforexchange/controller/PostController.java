@@ -1,7 +1,6 @@
 package com.example.foruminforexchange.controller;
 
 import com.example.foruminforexchange.dto.*;
-import com.example.foruminforexchange.model.Post;
 import com.example.foruminforexchange.service.PostService;
 import com.example.foruminforexchange.service.SearchService;
 import lombok.RequiredArgsConstructor;
@@ -98,6 +97,7 @@ public class PostController {
 
     @GetMapping("filter-post")
     public ApiResponse<Page<PostDto>> filterPosts(
+            @RequestParam(value = "categoryId", required = false) Long categoryId,
             @RequestParam(value = "prefixId", required = false) Long prefixId,
             @RequestParam(value = "searchKeyword", required = false) String searchKeyword,
             @RequestParam(value = "updateTime", required = false) Long updateTime,
@@ -107,7 +107,7 @@ public class PostController {
             @RequestParam(value = "sortOrder", required = false) String sortOrder,
             Pageable pageable){
         ApiResponse<Page<PostDto>> apiResponse = new ApiResponse<>();
-        apiResponse.setResult(searchService.filterPost(prefixId, searchKeyword, updateTime, postType, report, sortField, sortOrder, pageable));
+        apiResponse.setResult(searchService.filterPost(categoryId, prefixId, searchKeyword, updateTime, postType, report, sortField, sortOrder, pageable));
         return apiResponse;
     }
 

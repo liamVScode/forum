@@ -271,21 +271,23 @@ public class PostServiceImpl implements PostService {
                 Poll poll = pollRepo.findByPostPostId(editPost.getPostId());
                 if(poll != null){
                     poll.setQuestion(editPostRequest.getPollQuestion());
-                    poll.setChangeVote(editPostRequest.isChangeVote() ? true : false);
-                    poll.setViewResultsNoVote(editPostRequest.isViewResultNoVote() ? true : false);
-                    poll.setIsUnlimited(editPostRequest.isUnlimited() ? true : false);
-                    poll.setPost(editPost);
+                    poll.setChangeVote(editPostRequest.isChangeVote());
+                    poll.setViewResultsNoVote(editPostRequest.isViewResultNoVote());
+                    poll.setIsUnlimited(editPostRequest.isUnlimited());
                     poll.setMaximumSelectableResponses(editPostRequest.getMaximumSelectableResponses());
+                    poll.setCreateAt(LocalDateTime.now());
+                    poll.setTimeVote(3L);
+                    pollRepo.save(poll);
 
-                    Poll savedPoll = pollRepo.save(poll);
+                    List<Response> responses = responseRepo.findAllByPollPollId(poll.getPollId());
+                    for(Response response : responses){
+                        responseRepo.delete(response);
+                    }
 
-                    List<Response> responses = responseRepo.findAllByPollPollId(savedPoll.getPollId());
-                    for (Response response : responses) {
-
-                        response.setResponseContent(response.getResponseContent());
-                        response.setVoteCount(0L);
+                    for (String responseContent : editPostRequest.getPollResponses()) {
+                        Response response = new Response();
+                        response.setResponseContent(responseContent);
                         response.setPoll(poll);
-
                         responseRepo.save(response);
                     }
                 }
@@ -306,6 +308,8 @@ public class PostServiceImpl implements PostService {
             poll.setIsUnlimited(isUnlimited);
             poll.setPost(post);
             poll.setMaximumSelectableResponses(maximumSelectableResponses);
+            poll.setCreateAt(LocalDateTime.now());
+            poll.setTimeVote(3L);
             pollRepo.save(poll);
 
             for (String responseContent : pollResponses) {
@@ -319,9 +323,24 @@ public class PostServiceImpl implements PostService {
     @Transactional
     @Override
     public String deletePost(Long postId) {
+        String currentUserEmail = securityUtil.getCurrentUsername();
+        if (currentUserEmail == null || "anonymousUser".equals(currentUserEmail)){
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        User user = userRepo.findUserByEmail(currentUserEmail);
+        if(user == null){
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+
         Post post = postRepo.findByPostId(postId);
+
         if(post == null){
             throw new AppException(ErrorCode.POST_NOT_FOUND);
+        }
+
+        if(user.getUserId() != post.getUser().getUserId() && !user.getRole().equals(Role.ADMIN)){
+            throw new AppException(ErrorCode.NOT_ENOUGH_AUTHORITY);
         }
 
         List<Comment> lstComment = commentRepo.findAllByPostPostId(postId);
@@ -329,6 +348,7 @@ public class PostServiceImpl implements PostService {
             if(cmt.getImages() != null){
                 imageCommentRepo.deleteByCommentId(cmt.getCommentId());
             }
+
             if(cmt.getLikes() != null){
                 likeRepo.deleteByCommentCommentId(cmt.getCommentId());
             }

@@ -11,7 +11,9 @@ import com.example.foruminforexchange.model.TopicPrefix;
 import com.example.foruminforexchange.repository.TopicPrefixRepo;
 import com.example.foruminforexchange.repository.TopicRepo;
 import com.example.foruminforexchange.service.TopicService;
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -79,11 +81,18 @@ public class TopicServiceImpl implements TopicService {
     @Override
     public String deleteTopic(Long topicId) {
         Topic topic = topicRepo.findById(topicId).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
-        TopicPrefix topicPrefix = topicPrefixRepo.findByTopicTopicId(topicId);
-        if(topicPrefix != null){
-            topicPrefixRepo.delete(topicPrefix);
+
+        try {
+            List<TopicPrefix> topicPrefix = topicPrefixRepo.findByTopicTopicId(topicId);
+            for (TopicPrefix tp : topicPrefix) {
+                topicPrefixRepo.delete(tp);
+            }
+            topicRepo.delete(topic);
+        } catch (DataIntegrityViolationException | ConstraintViolationException e) {
+            throw new AppException(ErrorCode.DELETE_CONSTRAINT_VIOLATION);
         }
-        topicRepo.delete(topic);
+
         return "Delete topic successfully!";
     }
+
 }

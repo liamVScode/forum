@@ -39,10 +39,13 @@ public class SearchServiceImpl implements SearchService {
     private UserMapper userMapper;
     @Override
     @Transactional
-    public Page<PostDto> filterPost(Long prefixId, String searchKeyword, Long updateTime, Long postType, Long report, String sortField, String sortOrder, Pageable pageable) {
-        System.out.println(postType + "Nào");
+    public Page<PostDto> filterPost(Long categoryId, Long prefixId, String searchKeyword, Long updateTime, Long postType, Long report, String sortField, String sortOrder, Pageable pageable) {
 
         Specification<Post> spec = Specification.where(null);
+        if(categoryId != null){
+            spec = spec.and(PostSpecification.hasCategory(categoryId));
+        }
+
         if(prefixId != null){
             spec = spec.and(PostSpecification.hasPrefix(prefixId));
         }

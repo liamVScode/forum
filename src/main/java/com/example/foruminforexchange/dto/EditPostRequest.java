@@ -10,9 +10,7 @@ public class EditPostRequest {
     String title;
     Long prefixId;
     Long categoryId;
-
     String commentContent;
-
     String pollQuestion;
     Long maximumSelectableResponses;
     boolean isUnlimited;

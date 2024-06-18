@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -27,7 +28,7 @@ public interface PostRepo extends JpaRepository<Post, Long>, JpaSpecificationExe
 
     Long countAllByUserUserId(Long userId);
 
-    @Query("SELECT COUNT(p) FROM Post p WHERE p.createAt BETWEEN :startDate AND :endDate")
-    Long countByCreateAtBetween(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+    @Query("SELECT COUNT(p) FROM Post p WHERE p.createAt BETWEEN :startDateTime AND :endDateTime")
+    Long countByCreateAtBetween(@Param("startDateTime") LocalDateTime startDateTime, @Param("endDateTime") LocalDateTime endDateTime);
 
 }

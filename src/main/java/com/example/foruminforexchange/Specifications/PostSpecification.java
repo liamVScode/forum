@@ -11,6 +11,10 @@ import java.util.Date;
 
 public class PostSpecification {
 
+    public static Specification<Post> hasCategory(Long categoryId) {
+        return (root, query, cb) -> cb.equal(root.get("category").get("categoryId"), categoryId);
+    }
+
     public static Specification<Post> hasPrefix(Long prefixId) {
         return (root, query, cb) -> cb.equal(root.get("prefix").get("prefixId"), prefixId);
     }

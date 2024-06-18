@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -65,7 +66,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setFirstName(signupRequest.getFirstName());
         user.setLastName(signupRequest.getLastName());
         user.setLocation(signupRequest.getLocation());
-        user.setAvatar("https://localhost:3000/Image/ecf5d16b-ed81-4ddf-9f8c-346bcbaa65ce.jpg");
+        user.setAvatar("https://localhost:5000/Image/ecf5d16b-ed81-4ddf-9f8c-346bcbaa65ce.jpg");
         user.setRole(Role.USER);
         user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
 
@@ -73,9 +74,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     public JwtAuthenticationResponse signin(SigninRequest signinRequest){
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signinRequest.getEmail(), signinRequest.getPassword()));
-
-        var user = userRepo.findByEmail(signinRequest.getEmail()).orElseThrow(() -> new AppException(ErrorCode.EMAIL_PASSWORD_NOT_TRUE));
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signinRequest.getEmail(), signinRequest.getPassword()));
+        } catch (BadCredentialsException e) {
+            throw new AppException(ErrorCode.EMAIL_PASSWORD_NOT_TRUE);
+        }
+        var user = userRepo.findByEmail(signinRequest.getEmail()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         if(user.getLocked() == true){
             throw new AppException(ErrorCode.LOCKED_USER);
         }
@@ -93,11 +97,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     public JwtAuthenticationResponse signinAdmin(SigninRequest signinRequest) {
-        // Xác thực thông tin đăng nhập
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signinRequest.getEmail(), signinRequest.getPassword()));
-
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(signinRequest.getEmail(), signinRequest.getPassword()));
+        } catch (BadCredentialsException e) {
+            throw new AppException(ErrorCode.EMAIL_PASSWORD_NOT_TRUE);
+        }
         // Tìm người dùng theo email và kiểm tra có phải là admin
-        var user = userRepo.findByEmail(signinRequest.getEmail()).orElseThrow(() -> new AppException(ErrorCode.EMAIL_PASSWORD_NOT_TRUE));
+        var user = userRepo.findByEmail(signinRequest.getEmail()).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         if (user.getRole() != Role.ADMIN) {
             throw new AppException(ErrorCode.NOT_ADMIN);
         }
@@ -147,7 +153,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         }
                         User existingUser = userByEmail.get();
                         existingUser.setFacebookId(facebookUser.getFacebookId());
-                        existingUser.setStatus(Status.ONLINE);
                         existingUser.setFacebook("https://www.facebook.com/" + facebookUser.getFacebookId());
                         return userRepo.save(existingUser);
                     } else {
@@ -157,14 +162,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         newUser.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
                         newUser.setFirstName(facebookUser.getFirstName());
                         newUser.setLastName(facebookUser.getLastName());
-                        newUser.setAvatar("https://localhost:3000/Image/ecf5d16b-ed81-4ddf-9f8c-346bcbaa65ce.jpg");
+                        newUser.setAvatar("https://localhost:5000/Image/ecf5d16b-ed81-4ddf-9f8c-346bcbaa65ce.jpg");
                         newUser.setFacebook("https://www.facebook.com/" + facebookUser.getFacebookId());
                         newUser.setRole(Role.USER);
-                        newUser.setStatus(Status.ONLINE);
                         return userRepo.save(newUser);
                     }
                 });
-
+        user.setStatus(Status.ONLINE);
+        userRepo.save(user);
         var jwt = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(new HashMap<>(), user);
         JwtAuthenticationResponse jwtAuthenticationResponse = new JwtAuthenticationResponse();
@@ -176,7 +181,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private FacebookUser fetchFacebookUser(String accessToken) {
         HttpClient httpClient = HttpClient.newHttpClient();
-        String uri = "https://graph.facebook.com/v19.0/me?fields=id,name,email,first_name,last_name,birthday,location,hometown,gender,picture&access_token=" + accessToken;
+        String uri = "https://graph.facebook.com/v19.0/me?fields=id,name,email,first_name,last_name,birthday,location,hometown,gender,link&access_token=" + accessToken;
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(URI.create(uri))
                 .GET()
@@ -277,7 +282,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String token = jwtService.generatePasswordResetToken(user.getEmail());
 
         //link reset password
-        String urlRs = "http://localhost:4200/reset-password?token=" + token;
+        String urlRs = "https://localhost:4200/reset-password?token=" + token;
 
         //gui toi mail
         emailService.sendEmail(forgetPasswordRequest.getEmail(), "LẤY LẠI MẬT KHẨU", "NHẤN VÀO ĐÂY: " + urlRs);

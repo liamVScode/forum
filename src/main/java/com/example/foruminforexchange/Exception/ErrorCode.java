@@ -20,7 +20,10 @@ public enum ErrorCode {
     NOT_BLANK(1009, "FIELD MUST'NT BLANK"),
     PASSWORD_NOT_TRUE(1010, "PASSWORD NOT TRUE"),
 
-    LOCKED_USER(1011, "LOCKED USER")
+    LOCKED_USER(1011, "LOCKED USER"),
+
+    NOT_ENOUGH_AUTHORITY(1012, "NOT Enough authority"),
+    DELETE_CONSTRAINT_VIOLATION(1013, "Cannot delete topic because it has related entities.")
     ;
 
 

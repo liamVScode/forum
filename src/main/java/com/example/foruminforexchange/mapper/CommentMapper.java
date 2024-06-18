@@ -36,6 +36,9 @@ public class CommentMapper {
         }
         commentDto.setUpdateAt(comment.getUpdateAt());
         commentDto.setUser(userMapper.convertToUserDto(comment.getUser()));
+        if(comment.getEditedBy() != null)
+            commentDto.setEditedBy(userMapper.convertToUserDto(comment.getEditedBy()));
+        else commentDto.setEditedBy(null);
 
         return commentDto;
     }

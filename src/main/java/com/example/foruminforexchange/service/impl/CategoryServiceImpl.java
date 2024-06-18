@@ -12,7 +12,9 @@ import com.example.foruminforexchange.model.Topic;
 import com.example.foruminforexchange.repository.CategoryRepo;
 import com.example.foruminforexchange.repository.TopicRepo;
 import com.example.foruminforexchange.service.CategoryService;
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -73,7 +75,12 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public String deleteCategory(Long categoryId) {
         Category category = categoryRepo.findById(categoryId).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
-        categoryRepo.delete(category);
+        try{
+            categoryRepo.delete(category);
+        } catch (DataIntegrityViolationException | ConstraintViolationException e) {
+            throw new AppException(ErrorCode.DELETE_CONSTRAINT_VIOLATION);
+        }
+
         return "Delete category successfully!";
     }
 }

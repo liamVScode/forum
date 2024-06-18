@@ -34,7 +34,6 @@ public class UserMapper {
         facebookUser.setEmail((String) jsonObject.get("email"));
         facebookUser.setFirstName((String) jsonObject.get("first_name"));
         facebookUser.setLastName((String) jsonObject.get("last_name"));
-        facebookUser.setAvatar((String) jsonObject.get("picture"));
         return facebookUser;
     }
 

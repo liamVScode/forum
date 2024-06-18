@@ -91,7 +91,8 @@ public class PostMapper {
         pollDto.setIsUnlimited(poll.getIsUnlimited());
         pollDto.setChangeVote(poll.getChangeVote());
         pollDto.setViewResultsNoVote(poll.getViewResultsNoVote());
-
+        pollDto.setTimeVote(poll.getTimeVote());
+        pollDto.setCreateAt(poll.getCreateAt());
         long totalVotes = poll.getResponses().stream()
                 .mapToLong(Response::getVoteCount)
                 .sum();

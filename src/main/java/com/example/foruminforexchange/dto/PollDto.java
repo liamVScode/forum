@@ -2,6 +2,7 @@ package com.example.foruminforexchange.dto;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -13,4 +14,6 @@ public class PollDto {
     private Boolean changeVote;
     private Boolean viewResultsNoVote;
     private List<ResponseDto> responses;
+    private Long timeVote;
+    private LocalDateTime createAt;
 }

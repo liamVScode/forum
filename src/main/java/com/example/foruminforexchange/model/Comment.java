@@ -40,6 +40,10 @@ public class Comment {
     @Column(name = "like_count")
     private Long likeCount = 0L;
 
+    @ManyToOne
+    @JoinColumn(name = "edited_by")
+    private User editedBy;
+
 
     public Comment() {
         this.likeCount = 0L;
@@ -145,5 +149,13 @@ public class Comment {
 
     public void setLikes(List<Like> likes) {
         this.likes = likes;
+    }
+
+    public User getEditedBy() {
+        return editedBy;
+    }
+
+    public void setEditedBy(User editedBy) {
+        this.editedBy = editedBy;
     }
 }

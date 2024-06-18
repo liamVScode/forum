@@ -85,10 +85,8 @@ public class PrefixServiceImpl implements PrefixService {
     @Override
     public String deletePrefix(Long prefixId) {
         Prefix prefix = prefixRepo.findById(prefixId).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
-        TopicPrefix topicPrefix = topicPrefixRepo.findByTopicTopicId(prefixId);
-        if(topicPrefix != null){
-            topicPrefixRepo.delete(topicPrefix);
-        }
+        List<TopicPrefix> topicPrefix = topicPrefixRepo.findByPrefixPrefixId(prefixId);
+        for(TopicPrefix tp: topicPrefix) topicPrefixRepo.delete(tp);
         prefixRepo.delete(prefix);
         return "Delete topic successfully!";
     }

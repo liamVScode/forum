@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
@@ -56,16 +57,22 @@ public class StatisticsServiceImpl implements StatisticsService {
         String key = "average_posts_per_day";
         if (baseRedisService.hashExits(key, "average")) {
             Integer average = (Integer) baseRedisService.hashGet(key, "average");
-            if (average != null) {
+            if (average != null && average == 0) {
+                updateAveragePostsPerDay();
+                average = (Integer) baseRedisService.hashGet(key, "average");
+                long roundedAverage = (long) Math.ceil(average);
+                return roundedAverage;
+            }
+            if (average != null && average != 0) {
                 long roundedAverage = (long) Math.ceil(average);
                 return roundedAverage;
             } else {
                 return 0L;
             }
         } else {
-            updateAveragePostsPerMonth();
+            updateAveragePostsPerDay();
             Integer average = (Integer) baseRedisService.hashGet(key, "average");
-            if (average != null) {
+            if (average != null && average != 0) {
                 long roundedAverage = (long) Math.ceil(average);
                 return roundedAverage;
             } else {
@@ -79,6 +86,12 @@ public class StatisticsServiceImpl implements StatisticsService {
         String key = "average_posts_per_month";
         if (baseRedisService.hashExits(key, "average")) {
             Integer average = (Integer) baseRedisService.hashGet(key, "average");
+            if (average != null && average == 0) {
+                updateAveragePostsPerMonth();
+                average = (Integer) baseRedisService.hashGet(key, "average");
+                long roundedAverage = (long) Math.ceil(average);
+                return roundedAverage;
+            }
             if (average != null) {
                 long roundedAverage = (long) Math.ceil(average);
                 return roundedAverage;
@@ -100,18 +113,17 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     @Scheduled(cron = "0 0 5 * * *") // Hàng ngày vào lúc 5h sáng
     public void updateAveragePostsPerDay() {
-        LocalDate yesterday = LocalDate.now().minusDays(1);
+        LocalDate yesterday = LocalDate.now().minusDays(30);
         LocalDateTime startDateTime = yesterday.atStartOfDay();
-        LocalDateTime endDateTime = yesterday.plusDays(1).atStartOfDay();
+        LocalDateTime endDateTime = yesterday.plusDays(30).atStartOfDay();
 
         Long postsYesterday = postRepo.countByCreateAtBetween(startDateTime, endDateTime);
 
         baseRedisService.hashSet("posts_per_day", yesterday.toString(), postsYesterday);
 
-        if (postsYesterday > 0) {
             List<Object> dailyCounts = baseRedisService.hashGetByFieldPrefix("posts_per_day", "");
             Double average = dailyCounts.stream()
-                    .mapToLong(count -> ((Integer) count).longValue()) // Cast to Integer
+                    .mapToLong(count -> ((Integer) count).longValue())
                     .average()
                     .orElse(0.0);
 
@@ -119,18 +131,13 @@ public class StatisticsServiceImpl implements StatisticsService {
 
             baseRedisService.hashSet("average_posts_per_day", "average", roundedAverage);
             baseRedisService.setTimeToLive("average_posts_per_day", 1L);
-        } else {
-            // If there were no posts yesterday, set the rounded average to 0
-            baseRedisService.hashSet("average_posts_per_day", "average", 0L);
-            baseRedisService.setTimeToLive("average_posts_per_day", 1L);
-        }
     }
 
     @Scheduled(cron = "0 0 5 1 * *") // Hàng tháng vào lúc 5h sáng ngày 1
     public void updateAveragePostsPerMonth() {
-        LocalDate lastMonth = LocalDate.now().minusMonths(1);
-        LocalDateTime startDateTime = lastMonth.atStartOfDay();
-        LocalDateTime endDateTime = lastMonth.plusDays(1).atStartOfDay();
+        YearMonth lastMonth = YearMonth.now().minusMonths(1);
+        LocalDateTime startDateTime = lastMonth.atDay(1).atStartOfDay();
+        LocalDateTime endDateTime = lastMonth.plusMonths(1).atDay(30).atStartOfDay();
 
         Long postsLastMonth = postRepo.countByCreateAtBetween(startDateTime, endDateTime);
 
@@ -150,7 +157,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
 
     @Override
-    public Long getNuumberOfPost() {
+    public Long getNumberOfPost() {
         return postRepo.countAll();
     }
 

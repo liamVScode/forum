@@ -2,12 +2,9 @@ package com.example.foruminforexchange.controller.admin;
 
 import com.example.foruminforexchange.dto.ApiResponse;
 import com.example.foruminforexchange.dto.PostDto;
-import com.example.foruminforexchange.dto.ReportDto;
 import com.example.foruminforexchange.service.PostService;
 import com.example.foruminforexchange.service.SearchService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
@@ -34,8 +31,9 @@ public class PostAdController {
         return apiResponse;
     }
 
-    @GetMapping("filter-post")
+    @GetMapping("/filter-post")
     public ApiResponse<Page<PostDto>> filterPosts(
+            @RequestParam(value = "categoryId", required = false) Long categoryId,
             @RequestParam(value = "prefixId", required = false) Long prefixId,
             @RequestParam(value = "searchKeyword", required = false) String searchKeyword,
             @RequestParam(value = "updateTime", required = false) Long updateTime,
@@ -45,7 +43,7 @@ public class PostAdController {
             @RequestParam(value = "sortOrder", required = false) String sortOrder,
             Pageable pageable){
         ApiResponse<Page<PostDto>> apiResponse = new ApiResponse<>();
-        apiResponse.setResult(searchService.filterPost(prefixId, searchKeyword, updateTime, postType, report, sortField, sortOrder, pageable));
+        apiResponse.setResult(searchService.filterPost(categoryId, prefixId, searchKeyword, updateTime, postType, report, sortField, sortOrder, pageable));
         return apiResponse;
     }
 

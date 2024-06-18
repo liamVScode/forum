@@ -60,6 +60,14 @@ public class GlobalExceptionHandler {
                 apiResponse.setCode(errorCode.REPORT_EXISTED.getCode());
                 apiResponse.setMessage(errorCode.REPORT_EXISTED.getMessage());
                 break;
+            case NOT_ENOUGH_AUTHORITY:
+                apiResponse.setCode(errorCode.NOT_ENOUGH_AUTHORITY.getCode());
+                apiResponse.setMessage(errorCode.NOT_ENOUGH_AUTHORITY.getMessage());
+                break;
+            case DELETE_CONSTRAINT_VIOLATION:
+                apiResponse.setCode(errorCode.DELETE_CONSTRAINT_VIOLATION.getCode());
+                apiResponse.setMessage(errorCode.DELETE_CONSTRAINT_VIOLATION.getMessage());
+                break;
             default:
                 apiResponse.setCode(1);
                 apiResponse.setMessage("An unknown error has occurred.");

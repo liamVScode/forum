@@ -1,12 +1,15 @@
 package com.example.foruminforexchange.controller;
 
 import com.example.foruminforexchange.dto.ApiResponse;
+import com.example.foruminforexchange.dto.UserDto;
 import com.example.foruminforexchange.service.StatisticsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/statistics")
@@ -25,7 +28,7 @@ public class StatisticController {
     @GetMapping("number-of-post")
     public ApiResponse<Long> getNumberOfPost(){
         ApiResponse<Long> apiResponse = new ApiResponse<>();
-        apiResponse.setResult(statisticsService.getNuumberOfPost());
+        apiResponse.setResult(statisticsService.getNumberOfPost());
         return apiResponse;
     }
 
@@ -54,6 +57,13 @@ public class StatisticController {
     public ApiResponse<Long> getAveragePostsPerMonth() {
         ApiResponse<Long> apiResponse = new ApiResponse<>();
         apiResponse.setResult(statisticsService.getNumberOfPostPerMonth());
+        return apiResponse;
+    }
+
+    @GetMapping("/online-admin")
+    public ApiResponse<List<UserDto>> getListOnlineAdmin() {
+        ApiResponse<List<UserDto>> apiResponse = new ApiResponse<>();
+        apiResponse.setResult(statisticsService.getListOnlineAdmin());
         return apiResponse;
     }
 }

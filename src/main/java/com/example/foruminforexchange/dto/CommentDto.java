@@ -15,4 +15,5 @@ public class CommentDto {
     LocalDateTime updateAt;
     List<LikeDto> likeDtos;
     UserDto user;
+    UserDto editedBy;
 }

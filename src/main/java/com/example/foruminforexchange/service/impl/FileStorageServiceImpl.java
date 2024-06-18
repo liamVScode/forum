@@ -1,8 +1,6 @@
 package com.example.foruminforexchange.service.impl;
 
 import com.example.foruminforexchange.service.FileStorageService;
-
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,7 +30,6 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     @Override
     public String storeFile(MultipartFile file) {
-        // .
         String fileName = StringUtils.cleanPath(file.getOriginalFilename());
         String fileExtension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
         if (!fileExtension.matches("jpg|jpeg|png|gif")) {

@@ -8,7 +8,8 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface SearchService{
-    Page<PostDto> filterPost(Long prefixId,
+    Page<PostDto> filterPost(Long categoryId,
+                             Long prefixId,
                              String searchKeyword,
                              Long updateTime,
                              Long postType,

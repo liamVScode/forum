@@ -1,8 +1,8 @@
 package com.example.foruminforexchange.model;
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "Polls")
@@ -33,6 +33,11 @@ public class Poll {
 
     @OneToMany(mappedBy = "poll", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Response> responses;
+
+    private Long timeVote = 3L;
+
+    @Column(name = "create_at", nullable = false)
+    private LocalDateTime createAt = LocalDateTime.now();
 
     public Poll() {
     }
@@ -110,5 +115,21 @@ public class Poll {
 
     public void setResponses(List<Response> responses) {
         this.responses = responses;
+    }
+
+    public Long getTimeVote() {
+        return timeVote;
+    }
+
+    public void setTimeVote(Long timeVote) {
+        this.timeVote = timeVote;
+    }
+
+    public LocalDateTime getCreateAt() {
+        return createAt;
+    }
+
+    public void setCreateAt(LocalDateTime createAt) {
+        this.createAt = createAt;
     }
 }

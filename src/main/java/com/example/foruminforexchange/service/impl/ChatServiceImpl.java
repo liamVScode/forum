@@ -51,12 +51,13 @@ public class ChatServiceImpl implements ChatService {
         User user = userRepo.findUserByEmail(currentUserEmail);
         List<Message> messages = messageRepo.findByChatChatId(chatId);
         Chat chat = chatRepo.findById(chatId).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
-        Message lastMessage = messages.get(messages.size() - 1);
-        if (!lastMessage.getUser().getUserId().equals(user.getUserId())) {
-            chat.setReceiverStatus(1L);
-            chatRepo.save(chat);
-        }
-        if(messages != null){
+
+        if(messages != null && !messages.isEmpty()){
+            Message lastMessage = messages.get(messages.size() - 1);
+            if (!lastMessage.getUser().getUserId().equals(user.getUserId())) {
+                chat.setReceiverStatus(1L);
+                chatRepo.save(chat);
+            }
             return messages.stream().map((message) -> messageMapper.mapToMessageDto(message)).collect(Collectors.toList());
         }
         else{
